@@ -1,0 +1,124 @@
+{
+    "name": "getCoffee",
+    "type": "SEQ",
+    "children": [
+      {
+        "name": "ensureAwake",
+        "type": "ACT",
+        "post": ["awake"],
+        "costs": [0.0, 0.0, 0.0]
+      },
+      {
+        "name": "chooseSource",
+        "type": "OR",
+        "children": [
+          {
+            "name": "kitchenOption",
+            "type": "SEQ",
+            "pre": ["staffCardAvailable"],
+            "children": [
+              {
+                "name": "prepareAccess",
+                "type": "AND",
+                "children": [
+                  {
+                    "name": "getCard",
+                    "type": "ACT",
+                    "pre": ["ownCard"],
+                    "post": ["haveCard"],
+                    "costs": [0.0, 0.0, 0.0]
+                  },
+                  {
+                    "name": "grabMug",
+                    "type": "ACT",
+                    "post": ["haveMug"],
+                    "costs": [0.0, 0.0, 0.5]
+                  }
+                ]
+              },
+              {
+                "name": "gotoKitchen",
+                "type": "ACT",
+                "post": ["atKitchen"],
+                "costs": [0.0, 0.0, 2.0]
+              },
+              {
+                "name": "brewCoffee",
+                "type": "ACT",
+                "pre": ["haveCard", "haveMug", "atKitchen"],
+                "post": ["haveCoffee"],
+                "costs": [4.0, 0.0, 1.0]
+              }
+            ]
+          },
+          {
+            "name": "shopOption",
+            "type": "SEQ",
+            "pre": ["haveMoney"],
+            "children": [
+              {
+                "name": "gotoShop",
+                "type": "ACT",
+                "post": ["atShop"],
+                "costs": [0.0, 0.0, 4.0]
+              },
+              {
+                "name": "choosePaymentMethod",
+                "type": "OR",
+                "children": [
+                  {
+                    "name": "payCash",
+                    "type": "ACT",
+                    "pre": ["haveMoney"],
+                    "post": ["paid"],
+                    "costs": [0.0, 2.0, 0.0]
+                  },
+                  {
+                    "name": "payCard",
+                    "type": "ACT",
+                    "pre": ["bankCard"],
+                    "post": ["paid"],
+                    "costs": [0.0, 1.0, 0.0]
+                  }
+                ]
+              },
+              {
+                "name": "collectCoffee",
+                "type": "ACT",
+                "pre": ["atShop", "paid"],
+                "post": ["haveCoffee"],
+                "costs": [0.0, 0.0, 2.0]
+              }
+            ]
+          },
+          {
+            "name": "machineOption",
+            "type": "SEQ",
+            "pre": ["machineAvailable"],
+            "children": [
+              {
+                "name": "gotoMachine",
+                "type": "ACT",
+                "post": ["atMachine"],
+                "costs": [0.0, 0.0, 1.5]
+              },
+              {
+                "name": "insertCoin",
+                "type": "ACT",
+                "pre": ["haveCoin"],
+                "post": ["coinInserted"],
+                "costs": [0.0, 1.0, 0.0]
+              },
+              {
+                "name": "dispenseCoffee",
+                "type": "ACT",
+                "pre": ["coinInserted", "atMachine"],
+                "post": ["haveCoffee"],
+                "costs": [1.0, 0.0, 1.0]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
