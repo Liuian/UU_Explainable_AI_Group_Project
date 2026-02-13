@@ -1,7 +1,7 @@
 from anytree.importer import DictImporter
 from anytree import PreOrderIter
 
-# 1. 建立樹狀結構
+# 建立樹狀結構
 importer = DictImporter()
 root = importer.import_(json_tree)
 nodes_dict = {node.name: node for node in PreOrderIter(root)}
@@ -65,14 +65,11 @@ else:
 def generate_output(trace, target_name):
     if not trace: return []
     res = []
+    target_node = nodes_dict[target_name]       # 先定義 target_node，後續邏輯才能引用
     
-    # 【關鍵修正】：先定義 target_node，後續邏輯才能引用
-    target_node = nodes_dict[target_name]
-    
-   # 追蹤已解釋過的 OR，避免重複 (雖然 D 不過濾，但 OR 解釋邏輯需要)
-    explained_or = set()
-
     # --- 1. 尋找所有 lead to A 的 OR 節點 ---
+    explained_or = set()    # 追蹤已解釋過的 OR，避免重複 (雖然 D 不過濾，但 OR 解釋邏輯需要)
+    
     # 遍歷執行路徑中，直到 target_name 為止的所有節點
     try:
         limit_idx = trace.index(target_name)
@@ -94,7 +91,7 @@ def generate_output(trace, target_name):
                     # (C) Choice Factor
                     res.append(['C', sibling.name, getattr(sibling, 'pre', [])])
                 else:
-                    # 嚴格遵循優先序：N > V > F
+                    # 遵循優先序：N > V > F
                     
                     # (N) Norm Violation
                     n_type = norm.get('type', 'P')
@@ -143,8 +140,7 @@ def generate_output(trace, target_name):
                     unsatisfied = [p for p in sib_pre if p not in current_beliefs]
                     res.append(['F', sibling.name, unsatisfied if unsatisfied else sib_pre])
 
-
-    # --- 3. P Factor (保持你的邏輯) ---
+    # --- 2. P Factor ---
     acts_in_trace = [n for n in trace if nodes_dict[n].type == 'ACT']
     if target_name in acts_in_trace:
         target_idx = acts_in_trace.index(target_name)
@@ -154,7 +150,7 @@ def generate_output(trace, target_name):
             if pre_conditions:
                 res.append(['P', act_name, pre_conditions])
         
-    # --- 4. L Factor (保持你的狀態匹配邏輯) ---
+    # --- 3. L Factor ---
     target_posts = getattr(target_node, 'post', [])
     if target_posts and target_name in acts_in_trace:
         target_idx_in_acts = acts_in_trace.index(target_name)
@@ -174,12 +170,12 @@ def generate_output(trace, target_name):
                         curr_src = further_name
                 break
         
-    # --- 5. D Factor ---
+    # --- 4. D Factor ---
     for p in reversed(target_node.ancestors):
         if getattr(p, 'type', None) in ['OR', 'AND', 'SEQ']:
             res.append(['D', p.name])
             
-    # --- 6. U Factor ---
+    # --- 5. U Factor ---
     res.append(['U', preferences])
     return res
 
