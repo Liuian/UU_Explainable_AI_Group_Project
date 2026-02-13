@@ -74,16 +74,56 @@ def generate_output(trace, target_name):
         if child.name != branch_name:
             res.append(['N', child.name, n_label])
             
-    # 3. P Factor: 解釋 action_to_explain 的前置動作
-    acts = [n for n in trace if nodes_dict[n].type == 'ACT']
-    if target_name in acts:
-        idx = acts.index(target_name)
-        p_act = acts[idx-1] if idx > 0 else target_name
-        res.append(['P', p_act, getattr(nodes_dict[p_act], 'pre', [])])
+    # 3. P Factor: 所有在 A 之前 (含 A) 的 ACT 的 pre，且前提不為空
+    acts_in_trace = [n for n in trace if nodes_dict[n].type == 'ACT']
+    if target_name in acts_in_trace:
+        target_idx = acts_in_trace.index(target_name)
+        # 遍歷從開始到 target_name 的所有動作
+        for i in range(target_idx + 1):
+            act_name = acts_in_trace[i]
+            pre_conditions = getattr(nodes_dict[act_name], 'pre', [])
+            # 只有當前提條件非空時才加入
+            if pre_conditions:
+                res.append(['P', act_name, pre_conditions])
         
-    # 4. L Factor: Link (第一個 ACT -> 最後一個 ACT)
-    if len(acts) >= 2:
-        res.append(['L', acts[0], '->', acts[-1]])
+    # 4. L Factor: Link 修正版 (基於狀態依賴 N1.post -> N2.pre)
+    acts_in_trace = [n for n in trace if nodes_dict[n].type == 'ACT']
+    if target_name in acts_in_trace:
+        target_node = nodes_dict[target_name]
+        target_posts = getattr(target_node, 'post', [])
+        
+        # 只有當 A 有產出 post 時才需要找 Link
+        if target_posts:
+            target_idx_in_acts = acts_in_trace.index(target_name)
+            # 往後找剩餘的動作
+            remaining_acts = acts_in_trace[target_idx_in_acts + 1:]
+            
+            for next_act_name in remaining_acts:
+                next_node = nodes_dict[next_act_name]
+                next_pres = getattr(next_node, 'pre', [])
+                
+                # 推論核心：檢查 A 的 post 是否出現在下一個動作的 pre 中
+                # 使用 set 交集判斷是否有重疊的狀態
+                if set(target_posts) & set(next_pres):
+                    res.append(['L', target_name, '->', next_act_name])
+                    
+                    # 處理 Chain (鏈條): 如果 next_act 也有 link 到更後面的人
+                    # 這裡用一個簡單的迴圈繼續往後掃描鏈條
+                    curr_link_source = next_act_name
+                    curr_posts = getattr(nodes_dict[curr_link_source], 'post', [])
+                    
+                    # 在剩餘的動作中找下一個連結
+                    source_idx = remaining_acts.index(curr_link_source)
+                    for further_act_name in remaining_acts[source_idx + 1:]:
+                        further_pres = getattr(nodes_dict[further_act_name], 'pre', [])
+                        if set(curr_posts) & set(further_pres):
+                            res.append(['L', curr_link_source, '->', further_act_name])
+                            # 更新起點繼續往下找鏈條
+                            curr_link_source = further_act_name
+                            curr_posts = getattr(nodes_dict[curr_link_source], 'post', [])
+                    
+                    # 找到第一條連結路徑後即停止 (避免重複建立非直接依賴的 Link)
+                    break
         
     # 5. D Factor: 由下往上
     target_node = nodes_dict[target_name]
@@ -96,28 +136,3 @@ def generate_output(trace, target_name):
     return res
 
 output = generate_output(selected_trace, action_to_explain)
-
-
-"""
-77%
-
-Your answer is:
-['getCoffee', 'getAnnOfficeCoffee', 'gotoAnnOffice', 'getPod', 'getCoffeeAnnOffice']
-[['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['N', 'getShopCoffee', 'P(gotoKitchen)'], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['L', 'gotoAnnOffice', '->', 'getCoffeeAnnOffice'], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
-
-This answer is incorrect.
-The selected trace is correct, but the expected explanation for the selected trace is the following:
-[['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['V', 'getAnnOfficeCoffee', [2, 0, 6], '>', 'getShopCoffee', [0, 3, 9]], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['L', 'gotoAnnOffice', '->', 'getCoffeeAnnOffice'], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
-"""
-
-"""
-55%
-
-Your answer is:
-['getCoffee', 'getShopCoffee', 'gotoShop', 'payShop', 'getCoffeeShop']
-[['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'O(payShop)'], ['N', 'getAnnOfficeCoffee', 'O(payShop)'], ['P', 'gotoShop', []], ['L', 'gotoShop', '->', 'getCoffeeShop'], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [1, 2, 0]]]]
-
-This answer is incorrect.
-The selected trace is correct, but the expected explanation for the selected trace is the following:
-[['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'O(payShop)'], ['N', 'getAnnOfficeCoffee', 'O(payShop)'], ['P', 'payShop', ['haveMoney']], ['L', 'payShop', '->', 'getCoffeeShop'], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [1, 2, 0]]]]
-"""
