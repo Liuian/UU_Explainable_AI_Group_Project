@@ -198,10 +198,35 @@ def generate_output(trace, target_name):
                 
                 violated = False
                 if n_type == 'O':
-                    # 義務 (O): 若分支沒包含該動作則違反
-                    if not any(a in sib_descendants for a in n_acts):
+                    # 判斷如果走 sibling 這條路，義務是否『有可能』被履行
+                    can_fulfill = False
+                    
+                    # 1. 檢查 sibling 分支內部是否包含義務
+                    if any(a in sib_descendants for a in n_acts):
+                        can_fulfill = True
+                    
+                    # 2. 檢查 sibling 之後的序列 (不改變 curr，使用 temp)
+                    if not can_fulfill:
+                        temp_curr = sibling
+                        while temp_curr.parent:
+                            p = temp_curr.parent
+                            if p.type == 'SEQ':
+                                idx = p.children.index(temp_curr)
+                                subsequent_siblings = p.children[idx + 1:]
+                                for s in subsequent_siblings:
+                                    # 檢查後續兄弟節點的子孫
+                                    s_desc = [node.name for node in PreOrderIter(s)]
+                                    if any(a in s_desc for a in n_acts):
+                                        can_fulfill = True
+                                        break
+                            if can_fulfill: break
+                            temp_curr = p
+                    
+                    # 如果『沒做』且『未來也不會做』，才是違反義務
+                    if not can_fulfill:
                         res.append(['N', sibling.name, f"O({', '.join(n_acts)})"])
                         violated = True
+
                 else:
                     # 禁止 (P): 若分支包含該動作則違反
                     if any(a in sib_descendants for a in n_acts):
