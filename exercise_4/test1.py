@@ -230,7 +230,8 @@ def generate_output(trace, target_name):
                 else:
                     # 禁止 (P): 若分支包含該動作則違反
                     if any(a in sib_descendants for a in n_acts):
-                        res.append(['N', sibling.name, f"P({n_acts[0]})"])
+                        # 顯示 norm['actions'] 裡的所有動作
+                        res.append(['N', sibling.name, f"P({', '.join(n_acts)})"])
                         violated = True
                 if violated: continue
 
