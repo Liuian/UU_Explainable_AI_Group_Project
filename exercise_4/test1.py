@@ -100,29 +100,6 @@ else:
 ################################################
 # --- PART 2: 生成解釋因子 (符合系統回饋的格式) --- #
 ################################################
-def get_all_paths(node):
-    """忽略 Beliefs，找出所有邏輯上可行的路徑組合"""
-    if node.type == 'ACT':
-        return [[node.name]]
-    
-    if node.type == 'SEQ':
-        res = [[]]
-        # 依照 sequence 排序
-        children = sorted(node.children, key=lambda x: getattr(x, 'sequence', 0))
-        for child in children:
-            child_paths = get_all_paths(child)
-            if not child_paths: continue
-            res = [r + cp for r in res for cp in child_paths]
-        return [[node.name] + r for r in res]
-    
-    if node.type == 'OR':
-        res = []
-        for child in node.children:
-            for cp in get_all_paths(child):
-                res.append([node.name] + cp)
-        return res
-    return []
-
 def get_local_cost(node):
     """
     計算 OR 節點某個分支的局部成本：
@@ -200,53 +177,56 @@ def generate_output(trace, target_name):
         if curr.type == 'OR' and node_name not in explained_or:
             explained_or.add(node_name)
             
-            # 找到 trace 中緊跟在 OR 後面的節點，即為選中的分支 (Alternative)
+            # 1. 確定選中的分支 (Chosen Alternative)
             idx_in_trace = trace.index(node_name)
             chosen_child_name = trace[idx_in_trace + 1]
+            chosen_node = nodes_dict[chosen_child_name]
             
+            # 2. 強制第一順位：產出選中分支的 C factor
+            res.append(['C', chosen_child_name, getattr(chosen_node, 'pre', [])])
+            
+            # 3. 遍歷其他沒被選中的兄弟節點 (Alternatives)
             for sibling in curr.children:
                 if sibling.name == chosen_child_name:
-                    # (C) Choice Factor
-                    res.append(['C', sibling.name, getattr(sibling, 'pre', [])])
+                    continue # 已經處理過 C 了，跳過
+                    
+                # ----- 剩餘的優先序：N > V > F -----
+                # (N) Norm Violation
+                n_type = norm.get('type', 'P')
+                n_acts = norm.get('actions', [])
+                sib_descendants = [n.name for n in PreOrderIter(sibling)]
+                
+                violated = False
+                if n_type == 'O':
+                    # 義務 (O): 若分支沒包含該動作則違反
+                    if not any(a in sib_descendants for a in n_acts):
+                        res.append(['N', sibling.name, f"O({', '.join(n_acts)})"])
+                        violated = True
                 else:
-                    # 遵循優先序：N > V > F
-                    
-                    # (N) Norm Violation
-                    n_type = norm.get('type', 'P')
-                    n_acts = norm.get('actions', [])
-                    sib_descendants = [n.name for n in PreOrderIter(sibling)]
-                    
-                    violated = False
-                    if n_type == 'O':
-                        # 義務 (O): 若分支沒包含該動作則違反
-                        if not any(a in sib_descendants for a in n_acts):
-                            res.append(['N', sibling.name, f"O({', '.join(n_acts)})"])
-                            violated = True
-                    else:
-                        # 禁止 (P): 若分支包含該動作則違反
-                        if any(a in sib_descendants for a in n_acts):
-                            res.append(['N', sibling.name, f"P({n_acts[0]})"])
-                            violated = True
-                    if violated: continue
+                    # 禁止 (P): 若分支包含該動作則違反
+                    if any(a in sib_descendants for a in n_acts):
+                        res.append(['N', sibling.name, f"P({n_acts[0]})"])
+                        violated = True
+                if violated: continue
 
-                    # (V) Value Statement - 修正成本計算為局部 (get_local_cost)
-                    sib_pre = getattr(sibling, 'pre', [])
-                    current_beliefs = beliefs if 'beliefs' in globals() else []
+                # (V) Value Statement - 修正成本計算為局部 (get_local_cost)
+                sib_pre = getattr(sibling, 'pre', [])
+                current_beliefs = beliefs if 'beliefs' in globals() else []
+                
+                # 只有在前提滿足的情況下才進行效用比較 (V)
+                if all(p in current_beliefs for p in sib_pre):
+                    # --- 關鍵修正：使用 get_local_cost 取得局部成本 ---
+                    c_costs = get_local_cost(nodes_dict[chosen_child_name])
+                    o_costs = get_local_cost(sibling)
                     
-                    # 只有在前提滿足的情況下才進行效用比較 (V)
-                    if all(p in current_beliefs for p in sib_pre):
-                        # --- 關鍵修正：使用 get_local_cost 取得局部成本 ---
-                        c_costs = get_local_cost(nodes_dict[chosen_child_name])
-                        o_costs = get_local_cost(sibling)
-                        
-                        # 只有當選中的分支在字典序上「優於」或「等於」競爭分支時才回報 V
-                        # 或者依系統慣例，只要是合法的 Alternative 且被選中，就出 V 因子
-                        res.append(['V', chosen_child_name, c_costs, '>', sibling.name, o_costs])
-                        continue
+                    # 只有當選中的分支在字典序上「優於」或「等於」競爭分支時才回報 V
+                    # 或者依系統慣例，只要是合法的 Alternative 且被選中，就出 V 因子
+                    res.append(['V', chosen_child_name, c_costs, '>', sibling.name, o_costs])
+                    continue
 
-                    # (F) Failed Condition (只有當 N 和 V 都不成立時)
-                    unsatisfied = [p for p in sib_pre if p not in current_beliefs]
-                    res.append(['F', sibling.name, unsatisfied if unsatisfied else sib_pre])
+                # (F) Failed Condition (只有當 N 和 V 都不成立時)
+                unsatisfied = [p for p in sib_pre if p not in current_beliefs]
+                res.append(['F', sibling.name, unsatisfied if unsatisfied else sib_pre])
 
     # --- 2. P Factor ---
     acts_in_trace = [n for n in trace if nodes_dict[n].type == 'ACT']

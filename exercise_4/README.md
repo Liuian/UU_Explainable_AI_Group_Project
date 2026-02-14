@@ -92,3 +92,15 @@ The selected trace is correct, but the expected explanation for the selected tra
 []
 
 如果 action 不在 selected trace，要輸出 null list
+
+---------------------------------------------------------------------------------------
+
+Your answer is:
+['getCoffee', 'getShopCoffee', 'gotoShop', 'payShop', 'getCoffeeShop']
+[['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoKitchen)'], ['C', 'getShopCoffee', ['haveMoney']], 
+['L', 'gotoShop', '->', 'getCoffeeShop'], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
+
+This answer is incorrect.
+The selected trace is correct, but the expected explanation for the selected trace is the following:
+[['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoKitchen, gotoAnnOffice)'], ['N', 'getAnnOfficeCoffee', 'P(gotoKitchen, gotoAnnOffice)'], 
+['L', 'gotoShop', '->', 'getCoffeeShop'], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
