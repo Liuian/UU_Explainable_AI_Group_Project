@@ -32,6 +32,15 @@ output = "\n".join(lines)
 # 4. Print the result to verify
 print(output)
 
+# 4. 寫入 txt 檔案
+output_txt = './exercise_0/coffee_tree_info.txt'
+try:
+    with open(output_txt, 'w', encoding='utf-8') as f:
+        f.write("\n".join(lines))
+    print(f"✓ 成功將詳細樹狀資訊存檔至: {output_txt}")
+except Exception as e:
+    print(f"✗ 存檔失敗: {e}")
+
 
 # 5. Graphical visualization - generate PNG image
 # DotExporter uses Graphviz to generate tree diagram
