@@ -9,7 +9,97 @@ nodes_dict = {node.name: node for node in PreOrderIter(root)}
 ######################################################
 # --- PART 1: 找出包含 action_to_explain 的最優路徑 --- #
 ######################################################
+# Annotate the tree with violation information
+prohibited = set(norm.get("actions", [])) if norm.get("type") == "P" else set()
 
+def annotate(node):
+    # Post-order traversal (bottom-up)
+    for child in node.children:
+        annotate(child)
+        
+    actions = set(norm.get("actions", []))
+    n_type = norm.get("type")
+
+    if node.type == "ACT":
+        if n_type == "P":
+            node.violation = node.name in actions
+        else: # Obligation
+            node.violation = node.name not in actions
+    elif node.type == "OR":
+        node.violation = all(child.violation for child in node.children)
+    else: # SEQ or AND
+        node.violation = any(child.violation for child in node.children)
+
+annotate(root)
+
+# Generate traces
+def generate_traces(node, current_beliefs):
+    # Check Preconditions for the internal node itself
+    pre = getattr(node, "pre", [])
+    if not all(p in current_beliefs for p in pre):
+        return []
+
+    if node.type == "ACT":
+        new_beliefs = set(current_beliefs)
+        post = getattr(node, "post", [])
+        for p in post:
+            new_beliefs.add(p)
+        
+        return [([node.name], getattr(node, "costs", [0.0, 0.0, 0.0]), node.violation, list(new_beliefs))]
+
+    if node.type == "OR":
+        traces = []
+        for child in node.children:
+            for t, c, v, b in generate_traces(child, current_beliefs):
+                traces.append(([node.name] + t, c, v, b))
+        return traces
+
+    if node.type in ["SEQ", "AND"]:
+        # Start with the name of the SEQ node and current beliefs
+        traces = [([node.name], [0.0, 0.0, 0.0], False, list(current_beliefs))]
+        
+        for child in node.children:
+            next_step_traces = []
+            for t_acc, c_acc, v_acc, b_curr in traces:
+                child_options = generate_traces(child, b_curr)
+                for ct, cc, cv, cb in child_options:
+                    new_costs = [x + y for x, y in zip(c_acc, cc)]
+                    next_step_traces.append((t_acc + ct, new_costs, v_acc or cv, cb))
+            traces = next_step_traces
+
+            if not traces: break # Sequence failed
+        return traces
+    return []
+
+# Filter and select the best trace
+all_traces = generate_traces(root, beliefs)
+valid_traces = []
+
+for trace, cost, violation, b in all_traces:
+    #  Norm Filtering
+    if norm.get("type") == "P" and violation: continue
+    if norm.get("type") == "O" and not any(a in trace for a in norm.get("actions", [])): continue
+    
+    # Goal Filtering
+    if not all(g in b for g in goal): continue
+    
+    valid_traces.append((trace, cost))
+
+# sorting
+weights = preferences[1]
+def get_sort_key(item):
+    cost = item[1]
+    return tuple(cost[i] for i in weights)
+
+if valid_traces:
+    valid_traces.sort(key=get_sort_key)
+    selected_trace = valid_traces[0][0]
+else:
+    selected_trace = []
+
+################################################
+# --- PART 2: 生成解釋因子 (符合系統回饋的格式) --- #
+################################################
 def get_all_paths(node):
     """忽略 Beliefs，找出所有邏輯上可行的路徑組合"""
     if node.type == 'ACT':
@@ -43,24 +133,6 @@ def calculate_score(trace_names, weights):
             total_costs[i] += costs[i]
     # Dot product: Score = Cost * Weights
     return sum(total_costs[i] * weights[i] for i in range(3))
-
-# 執行尋路
-all_paths = get_all_paths(root)
-weights = preferences[1]
-
-# 過濾出包含目標動作的路徑，並選出分數最優者
-valid_traces = [t for t in all_paths if action_to_explain in t]
-
-if valid_traces:
-    # 這裡選取分數最低（代價最小）的路徑
-    selected_trace = min(valid_traces, key=lambda t: calculate_score(t, weights))
-else:
-    # 萬一真的找不到，保底方案：直接抓 target 的路徑
-    selected_trace = [n.name for n in nodes_dict[action_to_explain].path]
-
-################################################
-# --- PART 2: 生成解釋因子 (符合系統回饋的格式) --- #
-################################################
 
 def generate_output(trace, target_name):
     if not trace: return []

@@ -66,3 +66,15 @@ Your answer is:
 This answer is incorrect.
 The selected trace is correct, but the expected explanation for the selected trace is the following:
 [['C', 'getKitchenCoffee', ['staffCardAvailable']], ['N', 'getAnnOfficeCoffee', 'O(gotoKitchen)'], ['N', 'getShopCoffee', 'O(gotoKitchen)'], ['C', 'getOwnCard', ['ownCard']], ['F', 'getOthersCard', ['colleagueAvailable']], ['P', 'getOwnCard', ['ownCard']], ['L', 'gotoKitchen', '->', 'getCoffeeKitchen'], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
+
+
+82%
+Your answer is:
+['getCoffee', 'getKitchenCoffee', 'getStaffCard', 'getOwnCard', 'gotoKitchen', 'getCoffeeKitchen']
+[['C', 'getKitchenCoffee', ['staffCardAvailable']], ['V', 'getKitchenCoffee', [5, 0, 3], '>', 'getAnnOfficeCoffee', [2, 0, 6]], ['V', 'getKitchenCoffee', [5, 0, 3], '>', 'getShopCoffee', [0, 3, 9]], ['C', 'getOwnCard', ['ownCard']], ['V', 'getOwnCard', [5, 0, 3], '>', 'getOthersCard', [0, 0, 2]], ['P', 'getOwnCard', ['ownCard']], ['P', 'getCoffeeKitchen', ['haveCard', 'atKitchen']], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
+
+This answer is incorrect.
+The selected trace is correct, but the expected explanation for the selected trace is the following:
+[['C', 'getKitchenCoffee', ['staffCardAvailable']], ['V', 'getKitchenCoffee', [5, 0, 3], '>', 'getAnnOfficeCoffee', [2, 0, 6]], ['V', 'getKitchenCoffee', [5, 0, 3], '>', 'getShopCoffee', [0, 3, 9]], ['C', 'getOwnCard', ['ownCard']], ['V', 'getOwnCard', [0, 0, 0], '>', 'getOthersCard', [0, 0, 2]], ['P', 'getOwnCard', ['ownCard']], ['P', 'getCoffeeKitchen', ['haveCard', 'atKitchen']], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
+
+路徑成本計算錯誤
