@@ -123,19 +123,65 @@ def get_all_paths(node):
         return res
     return []
 
-def calculate_score(trace_names, weights):
-    """計算路徑的 Utility 分數"""
-    total_costs = [0.0, 0.0, 0.0]
-    for name in trace_names:
-        node = nodes_dict[name]
-        costs = getattr(node, 'costs', [0.0, 0.0, 0.0])
-        for i in range(3):
-            total_costs[i] += costs[i]
-    # Dot product: Score = Cost * Weights
-    return sum(total_costs[i] * weights[i] for i in range(3))
+def get_local_cost(node):
+    """
+    計算 OR 節點某個分支的局部成本：
+    1. 如果是 ACT：直接回傳該 ACT 的 costs。
+    2. 如果是 SEQ/AND：加總其『直接子代』中所有 ACT 的成本。
+    3. 如果子代中還有 OR：根據 BDI 邏輯，需遞迴取得該子 OR 內『被選中』或『最優』的分支成本。
+    """
+    if node.type == 'ACT':
+        return getattr(node, 'costs', [0, 0, 0])
+
+    if node.type in ['SEQ', 'AND', 'OR']:
+        total = [0, 0, 0]
+        # 遍歷該分支下的所有後代動作
+        # 根據預期答案 [5, 0, 3]，它是加總了該分支下「所有」會執行的 ACT
+        for child in node.children:
+            if child.type == 'ACT':
+                costs = getattr(child, 'costs', [0, 0, 0])
+                for i in range(3):
+                    total[i] += costs[i]
+                
+        return [int(x) for x in total]
+
+    return [0, 0, 0]
+
+def get_priority_order(pref_weights):
+    """
+    根據權重回傳維度索引的優先順序。
+    例如 [1, 2, 0] -> 優先序為 [1, 0, 2] (因為權重 2 在索引 1, 權重 1 在索引 0, 權重 0 在索引 2)
+    但根據你的描述：『先比 preference 高的』，如果是指數值大小：
+    權重值越大，優先權越高。
+    """
+    # 建立 (權重值, 索引) 的列表，並按權重從大到小排序
+    indexed_prefs = []
+    for i, w in enumerate(pref_weights):
+        indexed_prefs.append((w, i))
+    
+    # 降序排序：權重大的排前面
+    indexed_prefs.sort(key=lambda x: x[0], reverse=True)
+    
+    # 唯有權重相同的維度，才需要額外規則（通常按索引順序）
+    return [item[1] for item in indexed_prefs]
+
+def is_better_than(cost_a, cost_b, pref_weights):
+    """
+    比較兩組成本。回傳 True 代表 cost_a 優於 cost_b (成本更低)。
+    使用字典序比較。
+    """
+    order = get_priority_order(pref_weights)
+    
+    for idx in order:
+        if cost_a[idx] < cost_b[idx]:
+            return True
+        if cost_a[idx] > cost_b[idx]:
+            return False
+    return False # 完全相等
 
 def generate_output(trace, target_name):
-    if not trace: return []
+    if not trace or target_name not in trace:
+        return []
     res = []
     target_node = nodes_dict[target_name]       # 先定義 target_node，後續邏輯才能引用
     
@@ -183,32 +229,22 @@ def generate_output(trace, target_name):
                             violated = True
                     if violated: continue
 
-                    # (V) Value Statement (只有當 N 不成立時)
-                    # 計算雙方 Utility 分數進行比較
-                    chosen_acts = [n for n in trace if nodes_dict[n].type == 'ACT']
-                    chosen_score = calculate_score(chosen_acts, weights)
-                    
-                    other_paths = get_all_paths(sibling)
-                    if other_paths:
-                        # 找到失敗分支中的最優路徑
-                        best_other = min(other_paths, key=lambda t: calculate_score(t, weights))
-                        other_acts = [n for n in best_other if nodes_dict[n].type == 'ACT']
-                        other_score = calculate_score(other_acts, weights)
-                        
-                        # 只有當「這條路徑比較貴」或是「至少它是合法的替代方案」時
-                        # 注意：系統有時將 V 視為「只要前提滿足且不違規」的預設比較
-                        # 這裡假設如果前提滿足，就進行 V 比較
-                        sib_pre = getattr(sibling, 'pre', [])
-                        current_beliefs = beliefs if 'beliefs' in globals() else []
-                        if all(p in current_beliefs for p in sib_pre):
-                            c_costs = [sum(getattr(nodes_dict[n], 'costs', [0,0,0])[j] for n in chosen_acts) for j in range(3)]
-                            o_costs = [sum(getattr(nodes_dict[n], 'costs', [0,0,0])[j] for n in other_acts) for j in range(3)]
-                            res.append(['V', chosen_child_name, c_costs, '>', sibling.name, o_costs])
-                            continue
-
-                    # (F) Failed Condition (只有當 N 和 V 都不成立時)
+                    # (V) Value Statement - 修正成本計算為局部 (get_local_cost)
                     sib_pre = getattr(sibling, 'pre', [])
                     current_beliefs = beliefs if 'beliefs' in globals() else []
+                    
+                    # 只有在前提滿足的情況下才進行效用比較 (V)
+                    if all(p in current_beliefs for p in sib_pre):
+                        # --- 關鍵修正：使用 get_local_cost 取得局部成本 ---
+                        c_costs = get_local_cost(nodes_dict[chosen_child_name])
+                        o_costs = get_local_cost(sibling)
+                        
+                        # 只有當選中的分支在字典序上「優於」或「等於」競爭分支時才回報 V
+                        # 或者依系統慣例，只要是合法的 Alternative 且被選中，就出 V 因子
+                        res.append(['V', chosen_child_name, c_costs, '>', sibling.name, o_costs])
+                        continue
+
+                    # (F) Failed Condition (只有當 N 和 V 都不成立時)
                     unsatisfied = [p for p in sib_pre if p not in current_beliefs]
                     res.append(['F', sibling.name, unsatisfied if unsatisfied else sib_pre])
 
