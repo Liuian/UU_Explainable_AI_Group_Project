@@ -90,6 +90,22 @@ The selected trace is correct, but the expected explanation for the selected tra
 
 當 norm['type'] 為 'P'（禁止）時，系統要求顯示的是 norm['actions'] 列表中的「所有」動作，而不僅僅是觸發違規的那一個動作。
 
+---------------------------------------------------------------------------------------
 
+Generalizability
 
+1. get_local_cost 的計算方式
 
+    你目前的 get_local_cost 只加總了直接子代（Direct Children）的 ACT。
+
+    問題點：如果一個分支是 SEQ，且其內部還有嵌套的 SEQ 或 AND（例如 SEQ -> SEQ -> ACT），你的代碼會漏掉孫代節點的成本。
+
+    正確做法：應該加總該分支下 「所有可能被執行到的 ACT」。但要注意，如果遇到 OR，則不應往下加總（因為 OR 的具體路徑尚未在該分支被確定）。
+
+3. L 因子 (Lead to) 的鏈條中斷
+
+    你的 L 因子邏輯中，當找到第一個 next_act_name 後就 break 了。
+
+    問題點：如果目標動作 target 之後接了多個動作（例如 A -> B -> C），而 B 是 A 的 post-condition，C 也是 B 的 post-condition，你的代碼可能只抓到 A -> B。
+
+    預期格式：L 因子應該反映所有因為執行了 target 而直接或間接促成的後續步驟。

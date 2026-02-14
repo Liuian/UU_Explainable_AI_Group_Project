@@ -122,8 +122,6 @@ def get_local_cost(node):
                 
         return [int(x) for x in total]
 
-    return [0, 0, 0]
-
 def get_priority_order(pref_weights):
     """
     根據權重回傳維度索引的優先順序。
@@ -198,34 +196,35 @@ def generate_output(trace, target_name):
                 
                 violated = False
                 if n_type == 'O':
-                    # 判斷如果走 sibling 這條路，義務是否『有可能』被履行
-                    can_fulfill = False
-                    
-                    # 1. 檢查 sibling 分支內部是否包含義務
-                    if any(a in sib_descendants for a in n_acts):
-                        can_fulfill = True
-                    
-                    # 2. 檢查 sibling 之後的序列 (不改變 curr，使用 temp)
-                    if not can_fulfill:
-                        temp_curr = sibling
-                        while temp_curr.parent:
-                            p = temp_curr.parent
-                            if p.type == 'SEQ':
-                                idx = p.children.index(temp_curr)
-                                subsequent_siblings = p.children[idx + 1:]
-                                for s in subsequent_siblings:
-                                    # 檢查後續兄弟節點的子孫
-                                    s_desc = [node.name for node in PreOrderIter(s)]
-                                    if any(a in s_desc for a in n_acts):
-                                        can_fulfill = True
-                                        break
-                            if can_fulfill: break
-                            temp_curr = p
-                    
-                    # 如果『沒做』且『未來也不會做』，才是違反義務
-                    if not can_fulfill:
-                        res.append(['N', sibling.name, f"O({', '.join(n_acts)})"])
-                        violated = True
+                    if sibling.type != 'ACT':
+                        # 判斷如果走 sibling 這條路，義務是否『有可能』被履行
+                        can_fulfill = False
+                        
+                        # 1. 檢查 sibling 分支內部是否包含義務
+                        if any(a in sib_descendants for a in n_acts):
+                            can_fulfill = True
+                        
+                        # 2. 檢查 sibling 之後的序列 (不改變 curr，使用 temp)
+                        if not can_fulfill:
+                            temp_curr = sibling
+                            while temp_curr.parent:
+                                p = temp_curr.parent
+                                if p.type == 'SEQ':
+                                    idx = p.children.index(temp_curr)
+                                    subsequent_siblings = p.children[idx + 1:]
+                                    for s in subsequent_siblings:
+                                        # 檢查後續兄弟節點的子孫
+                                        s_desc = [node.name for node in PreOrderIter(s)]
+                                        if any(a in s_desc for a in n_acts):
+                                            can_fulfill = True
+                                            break
+                                if can_fulfill: break
+                                temp_curr = p
+                        
+                        # 如果『沒做』且『未來也不會做』，才是違反義務
+                        if not can_fulfill:
+                            res.append(['N', sibling.name, f"O({', '.join(n_acts)})"])
+                            violated = True
 
                 else:
                     # 禁止 (P): 若分支包含該動作則違反
@@ -264,25 +263,34 @@ def generate_output(trace, target_name):
             if pre_conditions:
                 res.append(['P', act_name, pre_conditions])
         
-    # --- 3. L Factor ---
-    target_posts = getattr(target_node, 'post', [])
-    if target_posts and target_name in acts_in_trace:
+    # --- 3. L Factor (連鎖反應修正版) ---
+    if target_name in acts_in_trace:
         target_idx_in_acts = acts_in_trace.index(target_name)
+        # 我們要檢查目標動作之後的所有 ACT
         remaining_acts = acts_in_trace[target_idx_in_acts + 1:]
         
-        for next_act_name in remaining_acts:
+        current_trigger_name = target_name
+        
+        # 使用循環不斷向後尋找因果鏈
+        i = 0
+        while i < len(remaining_acts):
+            next_act_name = remaining_acts[i]
+            current_node = nodes_dict[current_trigger_name]
             next_node = nodes_dict[next_act_name]
-            if set(target_posts) & set(getattr(next_node, 'pre', [])):
-                res.append(['L', target_name, '->', next_act_name])
-                
-                # 鏈條邏輯 (Chain)
-                curr_src = next_act_name
-                curr_idx = remaining_acts.index(curr_src)
-                for further_name in remaining_acts[curr_idx + 1:]:
-                    if set(getattr(nodes_dict[curr_src], 'post', [])) & set(getattr(nodes_dict[further_name], 'pre', [])):
-                        res.append(['L', curr_src, '->', further_name])
-                        curr_src = further_name
-                break
+            
+            # 取得當前動作的後置條件與下一個動作的前置條件
+            current_posts = getattr(current_node, 'post', [])
+            next_pres = getattr(next_node, 'pre', [])
+            
+            # 如果有交集，代表存在因果關係 (Lead to)
+            if set(current_posts) & set(next_pres):
+                res.append(['L', current_trigger_name, '->', next_act_name])
+                # 將「下一個動作」設為新的觸發者，繼續往後找
+                current_trigger_name = next_act_name
+                # 重新從剩下的動作中尋找 (重置索引)
+                # 註：這裡通常是找緊接在後的第一個滿足條件的動作
+            
+            i += 1
         
     # --- 4. D Factor ---
     for p in reversed(target_node.ancestors):
