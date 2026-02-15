@@ -3,25 +3,28 @@ from anytree.importer import DictImporter
 root = DictImporter().import_(json_tree)
 
 # Annotate the tree with violation information
-prohibited = set(norm.get("actions", [])) if norm.get("type") == "P" else set()
+
+actions = set(norm.get("actions", []))
+norm_type = norm.get("type")
 
 def annotate(node):
-    # Post-order traversal (bottom-up)
     for child in node.children:
         annotate(child)
-        
-    actions = set(norm.get("actions", []))
-    n_type = norm.get("type")
-
     if node.type == "ACT":
-        if n_type == "P":
+        if norm_type == "P":
             node.violation = node.name in actions
-        else: # Obligation
+        else:
             node.violation = node.name not in actions
-    elif node.type == "OR":
+        return
+    if node.type == "OR":
         node.violation = all(child.violation for child in node.children)
-    else: # SEQ or AND
-        node.violation = any(child.violation for child in node.children)
+        return
+    if node.type in ["SEQ","AND"]:
+        if norm_type == "P":
+            node.violation = any(child.violation for child in node.children)
+        else:
+            node.violation = all (child.violation for child in node.children)
+        return
 
 annotate(root)
 
@@ -43,8 +46,8 @@ def generate_traces(node, current_beliefs):
     if node.type == "OR":
         traces = []
         for child in node.children:
-            for t, c, v, b in generate_traces(child, current_beliefs):
-                traces.append(([node.name] + t, c, v, b))
+            for trace, cost, vio, belief in generate_traces(child, current_beliefs):
+                traces.append(([node.name] + trace, cost, vio, belief))
         return traces
 
     if node.type in ["SEQ", "AND"]:
@@ -53,11 +56,28 @@ def generate_traces(node, current_beliefs):
         
         for child in node.children:
             next_step_traces = []
-            for t_acc, c_acc, v_acc, b_curr in traces:
-                child_options = generate_traces(child, b_curr)
-                for ct, cc, cv, cb in child_options:
-                    new_costs = [x + y for x, y in zip(c_acc, cc)]
-                    next_step_traces.append((t_acc + ct, new_costs, v_acc or cv, cb))
+          
+            for trace_acc, cost_acc, violation_acc, beliefs_current in traces:
+                # Get possible ways to complete the current child step
+                child_options = generate_traces(child, beliefs_current)
+                
+                for child_trace, child_cost, child_violation, child_beliefs_final in child_options:
+                    # Combine the paths
+                    extended_trace = trace_acc + child_trace
+                    
+                    # Sum the costs of the previous steps and the new step
+                    new_total_costs = [prev + new for prev, new in zip(cost_acc, child_cost)]
+                    
+                    # The path is a violation if the previous steps OR this step is a violation
+                    combined_violation = violation_acc or child_violation
+                    
+                    # Add the new combined path to our list for the next iteration of the sequence
+                    next_step_traces.append((
+                        extended_trace, 
+                        new_total_costs, 
+                        combined_violation, 
+                        child_beliefs_final
+                    ))
             traces = next_step_traces
 
             if not traces: break # Sequence failed
@@ -68,15 +88,24 @@ def generate_traces(node, current_beliefs):
 all_traces = generate_traces(root, beliefs)
 valid_traces = []
 
-for trace, cost, violation, b in all_traces:
-    #  Norm Filtering
-    if norm.get("type") == "P" and violation: continue
-    if norm.get("type") == "O" and not any(a in trace for a in norm.get("actions", [])): continue
+for path_trace, total_costs, is_violating, final_beliefs in all_traces:
     
-    # Goal Filtering
-    if not all(g in b for g in goal): continue
+    # Norm Filtering 
+    if norm_type == "P" and is_violating: 
+        continue
+        
+    if norm_type == "O":
+        # At least one obligated action must be present in the path
+        obligated_actions = norm.get("actions", [])
+        if not any(action in path_trace for action in obligated_actions): 
+            continue
     
-    valid_traces.append((trace, cost))
+    # Goal Filtering (Success check)
+    if not all(goal_belief in final_beliefs for goal_belief in goal): 
+        continue
+    
+    # Store only the viable candidates for preference sorting
+    valid_traces.append((path_trace, total_costs))
 
 # sorting
 order = preferences[1]
