@@ -1,17 +1,18 @@
 
 import json
 from anytree.importer import DictImporter
+from anytree import PreOrderIter
 
 # Load the tree
-with open("coffee_advanced_tree.json") as f:
-    json_tree = json.load(f)
+# with open("coffee_advanced_tree.json") as f:
+#     json_tree = json.load(f)
 root = DictImporter().import_(json_tree)
 
 # Inputs check this last case
-norm = {'type': 'P', 'actions': ['gotoAnnOffice']}
-goal = ['haveCoffee']
-beliefs = ['staffCardAvailable', 'ownCard']
-preferences = [['quality', 'price', 'time'], [2, 0, 1]]
+# norm = {'type': 'P', 'actions': ['gotoAnnOffice']}
+# goal = ['haveCoffee']
+# beliefs = ['staffCardAvailable', 'ownCard']
+# preferences = [['quality', 'price', 'time'], [2, 0, 1]]
 
 # norm = {'type': 'P', 'actions': ['gotoShop']}
 # goal = ['haveCoffee', 'awake']
@@ -30,6 +31,14 @@ preferences = [['quality', 'price', 'time'], [2, 0, 1]]
 
 actions = set(norm.get("actions", []))
 norm_type = norm.get("type")
+
+for i, node in enumerate(PreOrderIter(root)):
+    if not hasattr(node, "name"):
+        node.name = f"default_name_{i}"
+    if not hasattr(node, "type"):
+        node.type = "UNKNOWN"
+    if not hasattr(node, "children"):
+        node.children = []
 
 def annotate(node):
     for child in node.children:
