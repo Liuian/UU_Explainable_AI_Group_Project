@@ -1,4 +1,5 @@
 from anytree.importer import DictImporter
+from anytree import PreOrderIter
 
 root = DictImporter().import_(json_tree)
 
@@ -6,6 +7,14 @@ root = DictImporter().import_(json_tree)
 
 actions = set(norm.get("actions", []))
 norm_type = norm.get("type")
+
+for i, node in enumerate(PreOrderIter(root)):
+    if not hasattr(node, "name"):
+        node.name = f"default_name_{i}"
+    if not hasattr(node, "type"):
+        node.type = "UNKNOWN"
+    if not hasattr(node, "children"):
+        node.children = []
 
 def annotate(node):
     for child in node.children:
