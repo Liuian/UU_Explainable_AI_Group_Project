@@ -1,14 +1,21 @@
 # Insert here your code
-import json
-
+from anytree import PreOrderIter
 from anytree import RenderTree
 from anytree.importer import DictImporter
-with open("coffee.json") as f:
-    json_tree = json.load(f)
+
 root = DictImporter().import_(json_tree)
-norm =  {'type': 'P', 'actions': ['payShop']}
+
 actions = set(norm.get("actions",[]))
 norm_type = norm.get("type")
+
+for i, node in enumerate(PreOrderIter(root)):
+    if not hasattr(node, "name"):
+        node.name = f"default_name_{i}"
+    if not hasattr(node, "type"):
+        node.type = "UNKNOWN"
+    if not hasattr(node, "children"):
+        node.children = []
+
 def annotate(node):
     for child in node.children:
         annotate(child)
@@ -29,4 +36,3 @@ def annotate(node):
         return
 annotate(root)
 output = RenderTree(root)# assign a value to the output variable
-print(output)
