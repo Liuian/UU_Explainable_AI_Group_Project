@@ -1,127 +1,145 @@
+
 from anytree.importer import DictImporter
 from anytree import PreOrderIter
 import json
 
-# 建立樹狀結構
 
-with open("coffee_and.json") as f:
+with open("coffee.json") as f:
     json_tree = json.load(f)
 
-norm = {'type': 'P', 'actions': ['gotoKitchen', 'gotoAnnOffice']}
-goal = ['haveCoffee']
-beliefs = ['haveMoney']
-preferences = [['quality', 'price', 'time'], [2, 0, 1]]
-action_to_explain = "payShop"
+norm={'type': 'P', 'actions': ['gotoAnnOffice']}
+goal=['haveCoffee']
+beliefs=['staffCardAvailable', 'ownCard']
+preferences=[['quality', 'price', 'time'], [2, 0, 1]]
+action_to_explain="getOwnCard"
 
+# norm = {'type': 'P', 'actions': ['gotoKitchen', 'gotoAnnOffice']}
+# goal = ['haveCoffee']
+# beliefs = ['haveMoney']
+# preferences = [['quality', 'price', 'time'], [2, 0, 1]]
+# action_to_explain = "payShop"
+
+# ---------------------------
+# Build Tree
+# ---------------------------
 importer = DictImporter()
 root = importer.import_(json_tree)
 nodes_dict = {node.name: node for node in PreOrderIter(root)}
 
 ######################################################
-# --- PART 1: 找出包含 action_to_explain 的最優路徑 --- #
+# --- PART 1: Find optimal trace containing action ---
 ######################################################
-# Annotate the tree with violation information
-        
+
 actions = set(norm.get("actions", []))
 n_type = norm.get("type")
 
 def annotate(node):
-    # Post-order traversal (bottom-up)
     for child in node.children:
         annotate(child)
 
     if node.type == "ACT":
         if n_type == "P":
             node.violation = node.name in actions
-        else: # Obligation
+        else:  # Obligation
             node.violation = node.name not in actions
+
     elif node.type == "OR":
         node.violation = all(child.violation for child in node.children)
-    else: # SEQ or AND
+
+    else:  # SEQ or AND
         node.violation = any(child.violation for child in node.children)
 
 annotate(root)
 
-# Generate traces
+
+# ---------------------------
+# Trace generation
+# ---------------------------
 def generate_traces(node, current_beliefs):
-    # Check Preconditions for the internal node itself
+
     pre = getattr(node, "pre", [])
     if not all(p in current_beliefs for p in pre):
         return []
 
-    # Post conditions for ACT nodes
     if node.type == "ACT":
-        # New independent beliefs for the trace
         new_beliefs = set(current_beliefs)
         post = getattr(node, "post", [])
         for p in post:
             new_beliefs.add(p)
 
-        return [([node.name], getattr(node, "costs", [0.0, 0.0, 0.0]), node.violation, list(new_beliefs))]
-    
+        return [(
+            [node.name],
+            getattr(node, "costs", [0.0, 0.0, 0.0]),
+            node.violation,
+            list(new_beliefs)
+        )]
+
     if node.type == "OR":
         traces = []
         for child in node.children:
-                for trace, cost, vio, belief in generate_traces(child, current_beliefs):
-                 traces.append(([node.name] + trace, cost, vio, belief))   
-
-        # print('traces in OR', traces)
+            for trace, cost, vio, belief in generate_traces(child, current_beliefs):
+                traces.append(([node.name] + trace, cost, vio, belief))
         return traces
-    
+
     if node.type in ["SEQ", "AND"]:
-        # Start with the name of the SEQ node and current beliefs
         traces = [([node.name], [0.0, 0.0, 0.0], False, list(current_beliefs))]
 
         for child in node.children:
             next_step_traces = []
 
-            # Iterate over the accumulated traces so far for this SEQ node
             for trace_acc, cost_acc, violation_acc, beliefs_current in traces:
-                
-                # Get possible ways to complete the current child step, hanldes deep children as well
                 child_options = generate_traces(child, beliefs_current)
 
                 for child_trace, child_cost, child_violation, child_beliefs_final in child_options:
-              
-                    # Combine the traces
                     extended_trace = trace_acc + child_trace
-                    
-                    # Sum the costs of the previous steps and the new step
-                    new_total_costs = [prev + new for prev, new in zip(cost_acc, child_cost)]
-                    
-                    # The path is a violation if the previous steps OR this step is a violation
+                    new_total_costs = [
+                        prev + new for prev, new in zip(cost_acc, child_cost)
+                    ]
                     combined_violation = violation_acc or child_violation
-                    
-                    # Add the new combined path to our list for the next iteration of the sequence
+
                     next_step_traces.append((
-                        extended_trace, 
-                        new_total_costs, 
-                        combined_violation, 
+                        extended_trace,
+                        new_total_costs,
+                        combined_violation,
                         child_beliefs_final
                     ))
 
             traces = next_step_traces
-  
-            if not traces: break # Sequence failed
+            if not traces:
+                break
+
         return traces
+
     return []
 
-# Filter and select the best trace
+
+# ---------------------------
+# Filter valid traces
+# ---------------------------
 all_traces = generate_traces(root, beliefs)
 valid_traces = []
 
 for trace, cost, violation, b in all_traces:
-    #  Norm Filtering
-    if norm.get("type") == "P" and violation: continue
-    if norm.get("type") == "O" and not any(a in trace for a in norm.get("actions", [])): continue
-    
-    # Goal Filtering
-    if not all(g in b for g in goal): continue
-    
+
+    # Norm filtering
+    if norm.get("type") == "P" and violation:
+        continue
+
+    if norm.get("type") == "O" and not any(a in trace for a in norm.get("actions", [])):
+        continue
+
+    # Goal filtering
+    if not all(g in b for g in goal):
+        continue
+
     valid_traces.append((trace, cost))
 
-# sorting
+
+# ---------------------------
+# Sorting
+# ---------------------------
 weights = preferences[1]
+
 def get_sort_key(item):
     cost = item[1]
     return tuple(cost[i] for i in weights)
@@ -132,209 +150,167 @@ if valid_traces:
 else:
     selected_trace = []
 
+
 ################################################
-# --- PART 2: 生成解釋因子 (符合系統回饋的格式) --- #
+# --- PART 2: Generate Explanation Factors ---
 ################################################
+
 def get_local_cost(node):
-    """
-    計算 OR 節點某個分支的局部成本：
-    1. 如果是 ACT：直接回傳該 ACT 的 costs。
-    2. 如果是 SEQ/AND：加總其『直接子代』中所有 ACT 的成本。
-    3. 如果子代中還有 OR：根據 BDI 邏輯，需遞迴取得該子 OR 內『被選中』或『最優』的分支成本。
-    """
     if node.type == 'ACT':
         return getattr(node, 'costs', [0, 0, 0])
 
-    if node.type in ['SEQ', 'AND', 'OR']:
-        total = [0, 0, 0]
-        # 遍歷該分支下的所有後代動作
-        # 根據預期答案 [5, 0, 3]，它是加總了該分支下「所有」會執行的 ACT
-        for child in node.children:
-            if child.type == 'ACT':
-                costs = getattr(child, 'costs', [0, 0, 0])
-                for i in range(3):
-                    total[i] += costs[i]
-                
-        return [int(x) for x in total]
+    total = [0, 0, 0]
+    for desc in PreOrderIter(node):
+        if desc.type == 'ACT':
+            costs = getattr(desc, 'costs', [0, 0, 0])
+            total = [a + b for a, b in zip(total, costs)]
+    return total
+
 
 def get_priority_order(pref_weights):
-    """
-    根據權重回傳維度索引的優先順序。
-    例如 [1, 2, 0] -> 優先序為 [1, 0, 2] (因為權重 2 在索引 1, 權重 1 在索引 0, 權重 0 在索引 2)
-    但根據你的描述：『先比 preference 高的』，如果是指數值大小：
-    權重值越大，優先權越高。
-    """
-    # 建立 (權重值, 索引) 的列表，並按權重從大到小排序
-    indexed_prefs = []
-    for i, w in enumerate(pref_weights):
-        indexed_prefs.append((w, i))
-    
-    # 降序排序：權重大的排前面
-    indexed_prefs.sort(key=lambda x: x[0], reverse=True)
-    
-    # 唯有權重相同的維度，才需要額外規則（通常按索引順序）
+    indexed_prefs = [(w, i) for i, w in enumerate(pref_weights)]
+    indexed_prefs.sort(reverse=True)
     return [item[1] for item in indexed_prefs]
 
+
 def is_better_than(cost_a, cost_b, pref_weights):
-    """
-    比較兩組成本。回傳 True 代表 cost_a 優於 cost_b (成本更低)。
-    使用字典序比較。
-    """
     order = get_priority_order(pref_weights)
-    
     for idx in order:
         if cost_a[idx] < cost_b[idx]:
             return True
         if cost_a[idx] > cost_b[idx]:
             return False
-    return False # 完全相等
+    return False
+
 
 def generate_output(trace, target_name):
+
     if not trace or target_name not in trace:
         return []
+
     res = []
-    target_node = nodes_dict[target_name]       # 先定義 target_node，後續邏輯才能引用
-    
-    # --- 1. 尋找所有 lead to A 的 OR 節點 ---
-    explained_or = set()    # 追蹤已解釋過的 OR，避免重複 (雖然 D 不過濾，但 OR 解釋邏輯需要)
-    
-    # 遍歷執行路徑中，直到 target_name 為止的所有節點
-    try:
-        limit_idx = trace.index(target_name)
-        nodes_to_check = trace[:limit_idx + 1]
-    except ValueError:
-        nodes_to_check = trace
+    target_node = nodes_dict[target_name]
+
+    # ---------------------------
+    # 1. OR Factors
+    # ---------------------------
+    explained_or = set()
+    limit_idx = trace.index(target_name)
+    nodes_to_check = trace[:limit_idx + 1]
 
     for node_name in nodes_to_check:
+
         curr = nodes_dict[node_name]
+
         if curr.type == 'OR' and node_name not in explained_or:
+
             explained_or.add(node_name)
-            
-            # 1. 確定選中的分支 (Chosen Alternative)
+
             idx_in_trace = trace.index(node_name)
             chosen_child_name = trace[idx_in_trace + 1]
             chosen_node = nodes_dict[chosen_child_name]
-            
-            # 2. 強制第一順位：產出選中分支的 C factor
+
+            # C factor
             res.append(['C', chosen_child_name, getattr(chosen_node, 'pre', [])])
-            
-            # 3. 遍歷其他沒被選中的兄弟節點 (Alternatives)
+
             for sibling in curr.children:
+
                 if sibling.name == chosen_child_name:
-                    continue # 已經處理過 C 了，跳過
-                    
-                # ----- 剩餘的優先序：N > V > F -----
-                # (N) Norm Violation
-                n_type = norm.get('type', 'P')
-                n_acts = norm.get('actions', [])
-                sib_descendants = [n.name for n in PreOrderIter(sibling)]
-                
-                violated = False
-                if n_type == 'O':
-                    if sibling.type != 'ACT':
-                        # 判斷如果走 sibling 這條路，義務是否『有可能』被履行
-                        can_fulfill = False
-                        
-                        # 1. 檢查 sibling 分支內部是否包含義務
-                        if any(a in sib_descendants for a in n_acts):
-                            can_fulfill = True
-                        
-                        # 2. 檢查 sibling 之後的序列 (不改變 curr，使用 temp)
-                        if not can_fulfill:
-                            temp_curr = sibling
-                            while temp_curr.parent:
-                                p = temp_curr.parent
-                                if p.type == 'SEQ':
-                                    idx = p.children.index(temp_curr)
-                                    subsequent_siblings = p.children[idx + 1:]
-                                    for s in subsequent_siblings:
-                                        # 檢查後續兄弟節點的子孫
-                                        s_desc = [node.name for node in PreOrderIter(s)]
-                                        if any(a in s_desc for a in n_acts):
-                                            can_fulfill = True
-                                            break
-                                if can_fulfill: break
-                                temp_curr = p
-                        
-                        # 如果『沒做』且『未來也不會做』，才是違反義務
-                        if not can_fulfill:
-                            res.append(['N', sibling.name, f"O({', '.join(n_acts)})"])
-                            violated = True
-
-                else:
-                    # 禁止 (P): 若分支包含該動作則違反
-                    if any(a in sib_descendants for a in n_acts):
-                        # 顯示 norm['actions'] 裡的所有動作
-                        res.append(['N', sibling.name, f"P({', '.join(n_acts)})"])
-                        violated = True
-                if violated: continue
-
-                # (V) Value Statement - 修正成本計算為局部 (get_local_cost)
-                sib_pre = getattr(sibling, 'pre', [])
-                current_beliefs = beliefs if 'beliefs' in globals() else []
-                
-                # 只有在前提滿足的情況下才進行效用比較 (V)
-                if all(p in current_beliefs for p in sib_pre):
-                    # --- 關鍵修正：使用 get_local_cost 取得局部成本 ---
-                    c_costs = get_local_cost(nodes_dict[chosen_child_name])
-                    o_costs = get_local_cost(sibling)
-                    
-                    # 只有當選中的分支在字典序上「優於」或「等於」競爭分支時才回報 V
-                    # 或者依系統慣例，只要是合法的 Alternative 且被選中，就出 V 因子
-                    res.append(['V', chosen_child_name, c_costs, '>', sibling.name, o_costs])
                     continue
 
-                # (F) Failed Condition (只有當 N 和 V 都不成立時)
-                unsatisfied = [p for p in sib_pre if p not in current_beliefs]
-                res.append(['F', sibling.name, unsatisfied if unsatisfied else sib_pre])
+                sib_descendants = [n.name for n in PreOrderIter(sibling)]
+                violated = False
 
-    # --- 2. P Factor ---
+                # N factor
+                if n_type == "P":
+                    if any(a in sib_descendants for a in actions):
+                        res.append(['N', sibling.name, f"P({', '.join(actions)})"])
+                        violated = True
+                else:
+                    if not any(a in sib_descendants for a in actions):
+                        res.append(['N', sibling.name, f"O({', '.join(actions)})"])
+                        violated = True
+
+                if violated:
+                    continue
+
+                sib_pre = getattr(sibling, 'pre', [])
+
+                # V factor
+                if all(p in beliefs for p in sib_pre):
+
+                    c_costs = get_local_cost(chosen_node)
+                    o_costs = get_local_cost(sibling)
+
+                    if is_better_than(c_costs, o_costs, preferences[1]):
+                        res.append(['V', chosen_child_name, c_costs, '>', sibling.name, o_costs])
+                        continue
+
+                # F factor
+                unsatisfied = [p for p in sib_pre if p not in beliefs]
+                res.append(['F', sibling.name, unsatisfied])
+
+    # ---------------------------
+    # 2. P Factor
+    # ---------------------------
     acts_in_trace = [n for n in trace if nodes_dict[n].type == 'ACT']
+
     if target_name in acts_in_trace:
         target_idx = acts_in_trace.index(target_name)
+
         for i in range(target_idx + 1):
             act_name = acts_in_trace[i]
             pre_conditions = getattr(nodes_dict[act_name], 'pre', [])
             if pre_conditions:
                 res.append(['P', act_name, pre_conditions])
-        
-    # --- 3. L Factor (連鎖反應修正版) ---
-    if target_name in acts_in_trace:
-        target_idx_in_acts = acts_in_trace.index(target_name)
-        # 我們要檢查目標動作之後的所有 ACT
-        remaining_acts = acts_in_trace[target_idx_in_acts + 1:]
-        
-        current_trigger_name = target_name
-        
-        # 使用循環不斷向後尋找因果鏈
-        i = 0
-        while i < len(remaining_acts):
-            next_act_name = remaining_acts[i]
-            current_node = nodes_dict[current_trigger_name]
-            next_node = nodes_dict[next_act_name]
-            
-            # 取得當前動作的後置條件與下一個動作的前置條件
-            current_posts = getattr(current_node, 'post', [])
-            next_pres = getattr(next_node, 'pre', [])
-            
-            # 如果有交集，代表存在因果關係 (Lead to)
-            if set(current_posts) & set(next_pres):
-                res.append(['L', current_trigger_name, '->', next_act_name])
-                # 將「下一個動作」設為新的觸發者，繼續往後找
-                current_trigger_name = next_act_name
-                # 重新從剩下的動作中尋找 (重置索引)
-                # 註：這裡通常是找緊接在後的第一個滿足條件的動作
-            
-            i += 1
-        
-    # --- 4. D Factor ---
+
+    # ---------------------------
+    # 3. L Factor (FIXED)
+    # ---------------------------
+    current = target_node
+
+    while hasattr(current, 'link') and current.link:
+
+        links = current.link
+
+        # FIX: flatten nested lists safely
+        flat_links = []
+        if isinstance(links, list):
+            for item in links:
+                if isinstance(item, list):
+                    flat_links.extend(item)
+                else:
+                    flat_links.append(item)
+        else:
+            flat_links = [links]
+
+        next_node = None
+
+        for linked_name in flat_links:
+            if isinstance(linked_name, str) and linked_name in nodes_dict:
+                res.append(['L', current.name, '->', linked_name])
+                next_node = nodes_dict[linked_name]
+                break
+
+        if not next_node:
+            break
+
+        current = next_node
+
+    # ---------------------------
+    # 4. D Factor
+    # ---------------------------
     for p in reversed(target_node.ancestors):
         if getattr(p, 'type', None) in ['OR', 'AND', 'SEQ']:
             res.append(['D', p.name])
-            
-    # --- 5. U Factor ---
+
+    # ---------------------------
+    # 5. U Factor
+    # ---------------------------
     res.append(['U', preferences])
+
     return res
+
 
 output = generate_output(selected_trace, action_to_explain)
 print(output)

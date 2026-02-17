@@ -3,6 +3,15 @@ from anytree.importer import DictImporter
 from anytree import PreOrderIter
 import json
 
+with open("coffee.json") as f:
+    json_tree = json.load(f)
+
+norm={'type': 'P', 'actions': ['gotoKitchen', 'gotoAnnOffice']}
+goal=['haveCoffee']
+beliefs=['haveMoney']
+preferences=[['quality', 'price', 'time'], [2, 0, 1]]
+action_to_explain="getCoffeeShop"
+
 importer = DictImporter()
 root = importer.import_(json_tree)
 nodes_dict = {node.name: node for node in PreOrderIter(root)}
@@ -294,3 +303,4 @@ def generate_output(trace, target_name):
 
 
 output = generate_output(selected_trace, action_to_explain)
+print(output)
