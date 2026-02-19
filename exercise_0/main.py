@@ -3,10 +3,15 @@ from anytree import RenderTree
 from anytree.importer import DictImporter
 from anytree.exporter import DotExporter
 
+# file_path = './exercise_0/coffee.json'
+# output_txt = './exercise_0/coffee_tree_info.txt'
+# output_image = './exercise_0/coffee_tree.png'
+
+file_path = './exercise_4/test_case/secure_office.json'
+output_txt = './exercise_4/test_case/secure_office_txt.txt'
+output_image = './exercise_4/test_case/secure_office_png.png'
 
 # 1. Read coffee.json file and store to json_tree
-file_path = './exercise_0/coffee.json'
-
 try:
     with open(file_path, 'r', encoding='utf-8') as f:
         json_tree = json.load(f)
@@ -33,7 +38,6 @@ output = "\n".join(lines)
 print(output)
 
 # 4. 寫入 txt 檔案
-output_txt = './exercise_0/coffee_tree_info.txt'
 try:
     with open(output_txt, 'w', encoding='utf-8') as f:
         f.write("\n".join(lines))
@@ -45,7 +49,6 @@ except Exception as e:
 # 5. Graphical visualization - generate PNG image
 # DotExporter uses Graphviz to generate tree diagram
 try:
-    output_image = './exercise_0/coffee_tree.png'
     DotExporter(root).to_picture(output_image)
     print(f"\n✓ Tree diagram successfully saved to: {output_image}")
 except Exception as e:
