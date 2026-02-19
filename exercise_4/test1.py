@@ -101,26 +101,23 @@ else:
 # --- PART 2: 生成解釋因子 (符合系統回饋的格式) --- #
 ################################################
 def get_local_cost(node):
-    """
-    計算 OR 節點某個分支的局部成本：
-    1. 如果是 ACT：直接回傳該 ACT 的 costs。
-    2. 如果是 SEQ/AND：加總其『直接子代』中所有 ACT 的成本。
-    3. 如果子代中還有 OR：根據 BDI 邏輯，需遞迴取得該子 OR 內『被選中』或『最優』的分支成本。
-    """
     if node.type == 'ACT':
         return getattr(node, 'costs', [0, 0, 0])
-
-    if node.type in ['SEQ', 'AND', 'OR']:
-        total = [0, 0, 0]
-        # 遍歷該分支下的所有後代動作
-        # 根據預期答案 [5, 0, 3]，它是加總了該分支下「所有」會執行的 ACT
+    
+    total = [0, 0, 0]
+    # 若為 SEQ/AND，須加總所有子節點的成本
+    if node.type in ['SEQ', 'AND']:
         for child in node.children:
-            if child.type == 'ACT':
-                costs = getattr(child, 'costs', [0, 0, 0])
-                for i in range(3):
-                    total[i] += costs[i]
-                
-        return [int(x) for x in total]
+            child_cost = get_local_cost(child)
+            for i in range(3):
+                total[i] += child_cost[i]
+    # 若為 OR，則根據 selected_trace 決定走哪個分支的成本
+    elif node.type == 'OR':
+        for child in node.children:
+            if child.name in selected_trace:
+                return get_local_cost(child)
+        return get_local_cost(node.children[0]) if node.children else [0,0,0]
+    return total
 
 def get_priority_order(pref_weights):
     """

@@ -24,7 +24,12 @@ Your answer is:
 
 This answer is incorrect.
 The selected trace is correct, but the expected explanation for the selected trace is the following:
-[['C', 'getKitchenCoffee', ['staffCardAvailable']], ['V', 'getKitchenCoffee', [5, 0, 3], '>', 'getAnnOfficeCoffee', [2, 0, 6]], ['V', 'getKitchenCoffee', [5, 0, 3], '>', 'getShopCoffee', [0, 3, 9]], ['C', 'getOwnCard', ['ownCard']], ['V', 'getOwnCard', [0, 0, 0], '>', 'getOthersCard', [0, 0, 2]], ['P', 'getOwnCard', ['ownCard']], ['P', 'getCoffeeKitchen', ['haveCard', 'atKitchen']], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
+[['C', 'getKitchenCoffee', ['staffCardAvailable']], ['V', 'getKitchenCoffee', [5, 0, 3], '>', 'getAnnOfficeCoffee', [2, 0, 6]], ['V', 'getKitchenCoffee', [5, 0, 3], '>', 'getShopCoffee', [0, 3, 9]], 
+
+['C', 'getOwnCard', ['ownCard']], ['V', 'getOwnCard', [0, 0, 0], '>', 'getOthersCard', [0, 0, 2]], 
+
+
+['P', 'getOwnCard', ['ownCard']], ['P', 'getCoffeeKitchen', ['haveCard', 'atKitchen']], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 
 路徑成本計算錯誤
 
@@ -109,3 +114,26 @@ Generalizability
     問題點：如果目標動作 target 之後接了多個動作（例如 A -> B -> C），而 B 是 A 的 post-condition，C 也是 B 的 post-condition，你的代碼可能只抓到 A -> B。
 
     預期格式：L 因子應該反映所有因為執行了 target 而直接或間接促成的後續步驟。
+
+
+
+    ----
+
+
+Your answer is:
+['getCoffee', 'getKitchenCoffee', 'getStaffCard', 'getOwnCard', 'gotoKitchen', 'getCoffeeKitchen']
+
+[['C', 'getKitchenCoffee', ['staffCardAvailable']], ['N', 'getAnnOfficeCoffee', 'O(gotoKitchen, gotoAnnOffice)'], ['N', 'getShopCoffee', 'O(gotoKitchen, gotoAnnOffice)'], 
+
+['C', 'getOwnCard', ['ownCard']], ['N', 'getOthersCard', 'O(gotoKitchen, gotoAnnOffice)'], 
+
+['P', 'getOwnCard', ['ownCard']], ['L', 'getOwnCard', '->', 'getCoffeeKitchen'], ['D', 'getCoffee'], ['D', 'getKitchenCoffee'], ['D', 'getStaffCard'], ['U', [['quality', 'price', 'time'], [1, 2, 0]]]]
+
+This answer is incorrect.
+The selected trace is correct, but the expected explanation for the selected trace is the following:
+
+[['C', 'getKitchenCoffee', ['staffCardAvailable']], ['F', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getShopCoffee', 'O(gotoKitchen, gotoAnnOffice)'], 
+
+['C', 'getOwnCard', ['ownCard']], ['F', 'getOthersCard', ['colleagueAvailable']], 
+
+['P', 'getOwnCard', ['ownCard']], ['L', 'getOwnCard', '->', 'getCoffeeKitchen'], ['D', 'getStaffCard'], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [1, 2, 0]]]]
