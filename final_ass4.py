@@ -6,11 +6,15 @@ import json
 with open("coffee.json") as f:
     json_tree = json.load(f)
 
-norm={'type': 'P', 'actions': ['gotoKitchen', 'gotoAnnOffice']}
+# norm={'type': 'P', 'actions': ['gotoKitchen', 'gotoAnnOffice']}
+# goal=['haveCoffee']
+# beliefs=['haveMoney']
+# preferences=[['quality', 'price', 'time'], [2, 0, 1]]
+norm={}
 goal=['haveCoffee']
-beliefs=['haveMoney']
+beliefs=['AnnInOffice','haveMoney','ownCard','staffCardAvailable']
 preferences=[['quality', 'price', 'time'], [2, 0, 1]]
-action_to_explain="getCoffeeShop"
+action_to_explain="getCoffeeKitchen"
 
 importer = DictImporter()
 root = importer.import_(json_tree)
@@ -107,7 +111,6 @@ all_traces = generate_traces(root, beliefs)
 valid_traces = []
 
 for trace, cost, violation, b in all_traces:
-
     # Norm filtering
     if norm.get("type") == "P" and violation:
         continue
@@ -184,7 +187,7 @@ def is_better_than(cost_a, cost_b, pref_weights):
 
 
 def generate_output(trace, target_name):
-
+    # print(trace)
     if not trace or target_name not in trace:
         return []
 
@@ -224,7 +227,7 @@ def generate_output(trace, target_name):
                     if any(a in sib_descendants for a in actions):
                         res.append(['N', sibling.name, f"P({', '.join(actions)})"])
                         violated = True
-                else:
+                if n_type == "O":
                     if not any(a in sib_descendants for a in actions):
                         res.append(['N', sibling.name, f"O({', '.join(actions)})"])
                         violated = True
@@ -246,7 +249,8 @@ def generate_output(trace, target_name):
 
                 # F factor
                 unsatisfied = [p for p in sib_pre if p not in beliefs]
-                res.append(['F', sibling.name, unsatisfied])
+                if len(unsatisfied) > 0:
+                    res.append(['F', sibling.name, unsatisfied])
 
     # --- 2. P Factor ---
     acts_in_trace = [n for n in trace if nodes_dict[n].type == 'ACT']
@@ -304,3 +308,8 @@ def generate_output(trace, target_name):
 
 output = generate_output(selected_trace, action_to_explain)
 print(output)
+
+# actions_to_explain =['getCoffee', 'getShopCoffee', 'gotoShop', 'payShop', 'getCoffeeShop']
+# for action in actions_to_explain:
+#     output = generate_output(trace, action)
+#     print(output)

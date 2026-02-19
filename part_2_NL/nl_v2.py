@@ -1,4 +1,4 @@
-# Example of explanation from assignment 4
+# Example of explanation from assignment
 explanations = [
                 [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
                 [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
@@ -20,6 +20,8 @@ explanations = [
                 [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['P', 'payShop', ['haveMoney']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
                 [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
                ]
+
+
 """
 These dictionaries of actions and preconditions consists of the variables from
 the assignment 4 explanations translated into English natural language parts of
@@ -120,8 +122,22 @@ def generate_nl_explanation(explanation):
     if overall_goal:
         story.append(f"The agent's goal was to {overall_goal}.")
 
-    # Process explanation lines
+    # Extract N actions to merge all N sentences for explaining
+    n_explanation = {}
+    f_explanation = []
+    non_nf_explanation = []
+
     for f in explanation:
+        if f[0] == 'N':
+            alt, norm_code = f[1], f[2]
+            n_explanation.setdefault(norm_code, []).append(alt)
+        elif f[0] == 'F':
+            f_explanation.append(f)
+        else:
+            non_nf_explanation.append(f)
+
+    # Process explanation lines
+    for f in non_nf_explanation:
         key = f[0]
 
         if len(f) > 1 and isinstance(f[1], str):
@@ -143,21 +159,6 @@ def generate_nl_explanation(explanation):
             else:
                 story.append(f"The agent {action_text}.")
 
-        # Map F parts to their respective natural language parts
-        elif key == 'F':
-            meaningful = [pc for pc in preconds if pc in negated_precondition_mapping]
-            if meaningful:
-                text = " and ".join(negated_precondition_mapping[pc] for pc in meaningful)
-                story.append(f"The agent failed to {action_text} because {text}.")
-            else:
-                story.append(f"The agent failed to {action_text}.")
-
-        # Map N items to respective natural language parts
-        elif key == 'N':
-            alt, norm_code = f[1], f[2]
-            alt_gerund = past_to_gerund(action_names_past.get(alt, alt))
-            story.append(f"The agent skipped {alt_gerund} because {norm_to_english(norm_code)}.")
-
         # Determine mapping of user preferences and choose correct nl mapping
         elif key == 'V':
             chosen, other = f[1], f[4]
@@ -174,20 +175,44 @@ def generate_nl_explanation(explanation):
 
                 # Append explanation of priorities agent
                 story.append(
-                    f"Given the agent's priorities, they chose to "
-                    f"{action_names_past.get(chosen, chosen)} over "
-                    f"{action_names_past.get(other, other)} because "
+                    f"Given the agent's priorities, they chose "
+                    f"{past_to_gerund(action_names_past.get(chosen, chosen))} over "
+                    f"{past_to_gerund(action_names_past.get(other, other))} because "
                     f"it was better in terms of {reason}."
                 )
 
+    # For all Skipped actions, only explain the reason once
+    for norm_code, alts in n_explanation.items():
+        alts_gerund = [past_to_gerund(action_names_past.get(alt, alt)) for alt in alts]
+        if len(alts_gerund) == 1:
+            skipped_actions = alts_gerund[0]
+            print(skipped_actions)
+        else:
+            skipped_actions = ", ".join(alts_gerund[:-1]) + " or " + alts_gerund[-1]
+        story.append(f"The agent skipped {skipped_actions} because  {norm_to_english(norm_code)}.")
+
+    # Map F parts to their respective natural language parts
+    for f in f_explanation:
+        if len(f) > 1 and isinstance(f[1], str):
+            action_text = action_names_present.get(f[1], f[1])
+        else:
+            continue
+
+        print(f)
+        preconds = f[2]
+        print(preconds)
+        meaningful = [pc for pc in preconds if pc in negated_precondition_mapping]
+        if meaningful:
+            text = " and ".join(negated_precondition_mapping[pc] for pc in meaningful)
+            story.append(f"The agent failed to {action_text} because {text}.")
+        else:
+            story.append(f"The agent failed to {action_text}.")
+
     return " ".join(story)
-
-
-
 # Run the code and print final explanation
 for explanation in explanations:
     nl_story = generate_nl_explanation(explanation)
-    with open("nl_output_v1.txt", "a", encoding="utf-8") as f:
+    with open("nl_output_v2.txt", "a", encoding="utf-8") as f:
         f.write(f"explanation:\n{explanation}\nstory:\n{nl_story}\n\n\n")
 print("Translated natural English story")
 print(nl_story)

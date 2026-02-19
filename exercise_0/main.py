@@ -5,7 +5,7 @@ from anytree.exporter import DotExporter
 
 
 # 1. Read coffee.json file and store to json_tree
-file_path = './exercise_0/coffee.json'
+file_path = '../coffee_advanced_tree.json'
 
 try:
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -33,7 +33,7 @@ output = "\n".join(lines)
 print(output)
 
 # 4. 寫入 txt 檔案
-output_txt = './exercise_0/coffee_tree_info.txt'
+output_txt = './coffee_advanced_tree_info.txt'
 try:
     with open(output_txt, 'w', encoding='utf-8') as f:
         f.write("\n".join(lines))
