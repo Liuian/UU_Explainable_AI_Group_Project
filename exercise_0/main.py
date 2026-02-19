@@ -8,8 +8,8 @@ from anytree.exporter import DotExporter
 # output_image = './exercise_0/coffee_tree.png'
 
 file_path = './exercise_4/test_case/secure_office.json'
-output_txt = './exercise_4/test_case/secure_office_txt.txt'
-output_image = './exercise_4/test_case/secure_office_png.png'
+output_txt = './exercise_4/test_case/secure_office.txt'
+output_image = './exercise_4/test_case/secure_office.png'
 
 # 1. Read coffee.json file and store to json_tree
 try:
