@@ -112,36 +112,36 @@ def find_traces(node):
     
     return all_traces
 
-# # Define starting node 
-# starting_node_name = "getCoffeeKitchen"
+# Define starting node 
+starting_node_name = "getKitchenCoffee"
 
-# # Build json tree into anytree object
-# anytree_obj = create_anytree(json_tree)
+# Build json tree into anytree object
+anytree_obj = create_anytree(json_tree)
 
-# # Locate the starting node in the anytree object
-# starting_node = find_starting_node(anytree_obj, starting_node_name)
+# Locate the starting node in the anytree object
+starting_node = find_starting_node(anytree_obj, starting_node_name)
 
-# # Collect all the traces starting from starting_node
-# output = find_traces(starting_node)
+# Collect all the traces starting from starting_node
+output = find_traces(starting_node)
 
-# # Comment out for Prairielearn!
-# print(output)
+# Comment out for Prairielearn!
+print(output)
 
 
 """
 Testing the advanced tree 
 """
-# Define starting node 
-starting_node_name_adv = "chooseSource"
+# # Define starting node 
+# starting_node_name_adv = "chooseSource"
 
-# Build json tree into anytree object
-anytree_obj_adv = create_anytree(json_adv_tree)
+# # Build json tree into anytree object
+# anytree_obj_adv = create_anytree(json_adv_tree)
 
-# Locate the starting node in the anytree object
-starting_node_adv = find_starting_node(anytree_obj_adv, starting_node_name_adv)
+# # Locate the starting node in the anytree object
+# starting_node_adv = find_starting_node(anytree_obj_adv, starting_node_name_adv)
 
-# Collect all the traces starting from starting_node
-output_adv = find_traces(starting_node_adv)
+# # Collect all the traces starting from starting_node
+# output_adv = find_traces(starting_node_adv)
 
-# Comment out for Prairielearn!
-print(output_adv)
+# # Comment out for Prairielearn!
+# print(output_adv)
