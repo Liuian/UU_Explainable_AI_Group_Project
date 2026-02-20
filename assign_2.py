@@ -19,6 +19,11 @@ for i, node in enumerate(PreOrderIter(root)):
 def annotate(node):
     for child in node.children:
         annotate(child)
+    # Check for empty norm
+    if norm_type is None:
+     node.violation = False
+     return
+    
     if node.type == "ACT":
         if norm_type == "P":
             node.violation = node.name in actions
@@ -35,4 +40,4 @@ def annotate(node):
             node.violation = all (child.violation for child in node.children)
         return
 annotate(root)
-output = RenderTree(root)# assign a value to the output variable
+output = RenderTree(root)
