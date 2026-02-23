@@ -9,9 +9,6 @@ nodes_dict = {node.name: node for node in PreOrderIter(root)}
 ######################################################
 # --- PART 1: 找出包含 action_to_explain 的最優路徑 --- #
 ######################################################
-# Annotate the tree with violation information
-prohibited = set(norm.get("actions", [])) if norm.get("type") == "P" else set()
-
 def annotate(node):
     # Post-order traversal (bottom-up)
     for child in node.children:
@@ -118,38 +115,6 @@ def get_local_cost(node):
                 return get_local_cost(child)
         return get_local_cost(node.children[0]) if node.children else [0,0,0]
     return total
-
-def get_priority_order(pref_weights):
-    """
-    根據權重回傳維度索引的優先順序。
-    例如 [1, 2, 0] -> 優先序為 [1, 0, 2] (因為權重 2 在索引 1, 權重 1 在索引 0, 權重 0 在索引 2)
-    但根據你的描述：『先比 preference 高的』，如果是指數值大小：
-    權重值越大，優先權越高。
-    """
-    # 建立 (權重值, 索引) 的列表，並按權重從大到小排序
-    indexed_prefs = []
-    for i, w in enumerate(pref_weights):
-        indexed_prefs.append((w, i))
-    
-    # 降序排序：權重大的排前面
-    indexed_prefs.sort(key=lambda x: x[0], reverse=True)
-    
-    # 唯有權重相同的維度，才需要額外規則（通常按索引順序）
-    return [item[1] for item in indexed_prefs]
-
-def is_better_than(cost_a, cost_b, pref_weights):
-    """
-    比較兩組成本。回傳 True 代表 cost_a 優於 cost_b (成本更低)。
-    使用字典序比較。
-    """
-    order = get_priority_order(pref_weights)
-    
-    for idx in order:
-        if cost_a[idx] < cost_b[idx]:
-            return True
-        if cost_a[idx] > cost_b[idx]:
-            return False
-    return False # 完全相等
 
 def generate_output(trace, target_name):
     if not trace or target_name not in trace:
