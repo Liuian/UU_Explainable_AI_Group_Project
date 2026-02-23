@@ -19,6 +19,11 @@ for i, node in enumerate(PreOrderIter(root)):
 def annotate(node):
     for child in node.children:
         annotate(child)
+
+    if norm_type is None:
+     node.violation = False
+     return
+    
     if node.type == "ACT":
         if norm_type == "P":
             node.violation = node.name in actions
@@ -36,8 +41,6 @@ def annotate(node):
         return
 
 annotate(root)
-
-all_traces = []
 
 def generate_traces(node, current_beliefs):
     
@@ -103,7 +106,6 @@ def generate_traces(node, current_beliefs):
         return traces
     return []
 
-value_names, preference = preferences
 
 all_traces = generate_traces(root, beliefs)
 
