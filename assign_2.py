@@ -1,10 +1,14 @@
 # Insert here your code
+import json
+
 from anytree import PreOrderIter
 from anytree import RenderTree
 from anytree.importer import DictImporter
-
+with open('coffee.json') as f:
+    json_tree = json.load(f)
 root = DictImporter().import_(json_tree)
 
+norm={'type': 'O', 'actions': ['getOwnCard']}
 actions = set(norm.get("actions",[]))
 norm_type = norm.get("type")
 
@@ -41,3 +45,4 @@ def annotate(node):
         return
 annotate(root)
 output = RenderTree(root)
+print(output)

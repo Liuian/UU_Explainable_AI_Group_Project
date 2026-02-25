@@ -10,9 +10,9 @@ with open("coffee.json") as f:
 # goal=['haveCoffee']
 # beliefs=['haveMoney']
 # preferences=[['quality', 'price', 'time'], [2, 0, 1]]
-norm={}
+norm= {'type': 'O', 'actions': ['gotoKitchen', 'gotoAnnOffice']}
 goal=['haveCoffee']
-beliefs=['AnnInOffice','haveMoney','ownCard','staffCardAvailable']
+beliefs=['haveMoney','ownCard','AnnInOffice','staffCardAvailable']
 preferences=[['quality', 'price', 'time'], [2, 0, 1]]
 action_to_explain="getCoffeeKitchen"
 
@@ -187,7 +187,6 @@ def is_better_than(cost_a, cost_b, pref_weights):
 
 
 def generate_output(trace, target_name):
-    # print(trace)
     if not trace or target_name not in trace:
         return []
 
@@ -306,10 +305,10 @@ def generate_output(trace, target_name):
     return res
 
 
-output = generate_output(selected_trace, action_to_explain)
-print(output)
-
-# actions_to_explain =['getCoffee', 'getShopCoffee', 'gotoShop', 'payShop', 'getCoffeeShop']
-# for action in actions_to_explain:
-#     output = generate_output(trace, action)
-#     print(output)
+# output = generate_output(selected_trace, action_to_explain)
+# print(output)
+print(selected_trace)
+actions_to_explain =['getCoffee', 'getKitchenCoffee', 'getStaffCard', 'getOwnCard', 'gotoKitchen', 'getCoffeeKitchen']
+for action in actions_to_explain:
+    output = generate_output(selected_trace, action)
+    print(f"{output},")

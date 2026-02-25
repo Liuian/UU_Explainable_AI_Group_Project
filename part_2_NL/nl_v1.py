@@ -185,9 +185,9 @@ def generate_nl_explanation(explanation):
 
 
 # Run the code and print final explanation
-for explanation in explanations:
-    nl_story = generate_nl_explanation(explanation)
-    with open("nl_output_v1.txt", "a", encoding="utf-8") as f:
-        f.write(f"explanation:\n{explanation}\nstory:\n{nl_story}\n\n\n")
-print("Translated natural English story")
-print(nl_story)
+with open("nl_output_v1.txt","w", encoding="utf-8") as f:
+    for idx, explanation in enumerate(explanations, 1):
+        nl_story = generate_nl_explanation(explanation)
+        f.write(f"{idx}.explanation:\n{explanation}\nstory:\n{nl_story}\n\n\n")
+# print("Translated natural English story")
+# print(nl_story)

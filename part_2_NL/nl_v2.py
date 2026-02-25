@@ -1,25 +1,48 @@
 # Example of explanation from assignment
 explanations = [
-                [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['P', 'payShop', ['haveMoney']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['P', 'payShop', ['haveMoney']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                #
+                # [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['P', 'getCoffeeAnnOffice', ['havePod', 'atAnnOffice']], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['P', 'getCoffeeAnnOffice', ['havePod', 'atAnnOffice']], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                #
+                # [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['P', 'payShop', ['haveMoney']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                #
+                # [['C', 'getShopCoffee', ['haveMoney']], ['F', 'getKitchenCoffee', ['staffCardAvailable']], ['F', 'getAnnOfficeCoffee', ['AnnInOffice']], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['F', 'getKitchenCoffee', ['staffCardAvailable']], ['F', 'getAnnOfficeCoffee', ['AnnInOffice']], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['F', 'getKitchenCoffee', ['staffCardAvailable']], ['F', 'getAnnOfficeCoffee', ['AnnInOffice']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['F', 'getKitchenCoffee', ['staffCardAvailable']], ['F', 'getAnnOfficeCoffee', ['AnnInOffice']], ['P', 'payShop', ['haveMoney']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getShopCoffee', ['haveMoney']], ['F', 'getKitchenCoffee', ['staffCardAvailable']], ['F', 'getAnnOfficeCoffee', ['AnnInOffice']], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                #
+                # [['C', 'getKitchenCoffee', ['staffCardAvailable']], ['N', 'getShopCoffee', 'O(gotoKitchen, gotoAnnOffice)'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getKitchenCoffee', ['staffCardAvailable']], ['N', 'getShopCoffee', 'O(gotoKitchen, gotoAnnOffice)'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getKitchenCoffee', ['staffCardAvailable']], ['N', 'getShopCoffee', 'O(gotoKitchen, gotoAnnOffice)'], ['C', 'getOwnCard', ['ownCard']], ['N', 'getOthersCard', 'O(gotoKitchen, gotoAnnOffice)'], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getKitchenCoffee', ['staffCardAvailable']], ['N', 'getShopCoffee', 'O(gotoKitchen, gotoAnnOffice)'], ['C', 'getOwnCard', ['ownCard']], ['N', 'getOthersCard', 'O(gotoKitchen, gotoAnnOffice)'], ['P', 'getOwnCard', ['ownCard']], ['D', 'getStaffCard'], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getKitchenCoffee', ['staffCardAvailable']], ['N', 'getShopCoffee', 'O(gotoKitchen, gotoAnnOffice)'], ['C', 'getOwnCard', ['ownCard']], ['N', 'getOthersCard', 'O(gotoKitchen, gotoAnnOffice)'], ['P', 'getOwnCard', ['ownCard']], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                # [['C', 'getKitchenCoffee', ['staffCardAvailable']], ['N', 'getShopCoffee', 'O(gotoKitchen, gotoAnnOffice)'], ['C', 'getOwnCard', ['ownCard']], ['N', 'getOthersCard', 'O(gotoKitchen, gotoAnnOffice)'], ['P', 'getOwnCard', ['ownCard']], ['P', 'getCoffeeKitchen', ['haveCard', 'atKitchen']], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                #
+                # [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'],['F', 'getAnnOfficeCoffee', ['AnnInOffice']], ['P', 'payShop', ['haveMoney']],['P', 'getCoffeeShop', ['atShop', 'paidShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'],['U', [['quality', 'price', 'time'], [1, 2, 0]]]],
 
-                [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['P', 'getCoffeeAnnOffice', ['havePod', 'atAnnOffice']], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['P', 'getCoffeeAnnOffice', ['havePod', 'atAnnOffice']], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
+                [['C', 'getKitchenCoffee', ['staffCardAvailable']], ['F', 'getAnnOfficeCoffee', ['AnnInOffice']], ['F', 'getShopCoffee', ['haveMoney']], ['C', 'getOwnCard', ['ownCard']], ['F', 'getOthersCard', ['colleagueAvailable']], ['P', 'getOwnCard', ['ownCard']], ['P', 'getCoffeeKitchen', ['haveCard', 'atKitchen']], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [0, 1, 2]]]],
+                [['C', 'getShopCoffee', ['haveMoney']], ['F', 'getKitchenCoffee', ['staffCardAvailable']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [0, 1, 2]]]],
+                [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 3.0]], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice)'], ['P', 'payShop', ['haveMoney']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [0, 1, 2]]]],
+                [['C', 'getKitchenCoffee', ['staffCardAvailable']], ['F', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getShopCoffee', 'P(payShop)'], ['C', 'getOwnCard', ['ownCard']], ['V', 'getOwnCard', [0.0, 0.0, 0.0], '>', 'getOthersCard', [0.0, 0.0, 2.0]], ['P', 'getOwnCard', ['ownCard']], ['L', 'gotoKitchen', '->', 'getCoffeeKitchen'], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [1, 2, 0]]]]
 
-                [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['P', 'payShop', ['haveMoney']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]],
-                [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
-               ]
+
+
+]
 
 
 """
@@ -106,11 +129,6 @@ def generate_nl_explanation(explanation):
     story = []
     criteria, priorities = None, None
 
-    # Extract priorities
-    for f in explanation:
-        if f[0] == 'U':
-            criteria, priorities = f[1][0], f[1][1]
-
     # Determine overall goal (last D)
     overall_goal = None
     for f in reversed(explanation):
@@ -121,6 +139,20 @@ def generate_nl_explanation(explanation):
     # Turn overall goal into natural English part
     if overall_goal:
         story.append(f"The agent's goal was to {overall_goal}.")
+
+    # Extract priorities
+    # for f in explanation:
+    #     if f[0] == 'U':
+    #         criteria, priorities = f[1][0], f[1][1]
+    #         sorted_criteria = [criteria[i] for i in priorities]
+    #         first_priority = sorted_criteria[0]
+    #         rest_priority = sorted_criteria[1:]
+    #         if len(sorted_criteria) == 2:
+    #             story.append(f"The agent valued {first_priority} the most, followed by {rest_priority[0]}")
+    #         else:
+    #             story.append(f"The agent valued {first_priority} the most, followed by {', '.join(rest_priority[:-1])} and {rest_priority[-1]}.")
+    #
+
 
     # Extract N actions to merge all N sentences for explaining
     n_explanation = {}
@@ -186,10 +218,9 @@ def generate_nl_explanation(explanation):
         alts_gerund = [past_to_gerund(action_names_past.get(alt, alt)) for alt in alts]
         if len(alts_gerund) == 1:
             skipped_actions = alts_gerund[0]
-            print(skipped_actions)
         else:
-            skipped_actions = ", ".join(alts_gerund[:-1]) + " or " + alts_gerund[-1]
-        story.append(f"The agent skipped {skipped_actions} because  {norm_to_english(norm_code)}.")
+            skipped_actions = ", ".join(alts_gerund[:-1]) + " and " + alts_gerund[-1]
+        story.append(f"The agent skipped {skipped_actions} because {norm_to_english(norm_code)}.")
 
     # Map F parts to their respective natural language parts
     for f in f_explanation:
@@ -198,21 +229,18 @@ def generate_nl_explanation(explanation):
         else:
             continue
 
-        print(f)
         preconds = f[2]
-        print(preconds)
         meaningful = [pc for pc in preconds if pc in negated_precondition_mapping]
         if meaningful:
             text = " and ".join(negated_precondition_mapping[pc] for pc in meaningful)
-            story.append(f"The agent failed to {action_text} because {text}.")
+            story.append(f"The agent didn't {action_text} because {text}.")
         else:
-            story.append(f"The agent failed to {action_text}.")
+            story.append(f"The agent didn't {action_text}.")
 
     return " ".join(story)
 # Run the code and print final explanation
-for explanation in explanations:
-    nl_story = generate_nl_explanation(explanation)
-    with open("nl_output_v2.txt", "a", encoding="utf-8") as f:
-        f.write(f"explanation:\n{explanation}\nstory:\n{nl_story}\n\n\n")
-print("Translated natural English story")
-print(nl_story)
+with open("nl_output_5inputs_v2.txt", "w", encoding="utf-8") as f:
+    for idx, explanation in enumerate(explanations, 1):
+        nl_story = generate_nl_explanation(explanation)
+        f.write(f"{idx}.explanation:\n{explanation}\nstory:\n{nl_story}\n\n\n")
+

@@ -1,100 +1,100 @@
-explanation:
+*1.explanation:
 [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent got coffee from the shop because they had enough money. The agent skipped getting coffee in the kitchen because they were not allowed to go to Ann's office, or go to the kitchen. The agent skipped getting coffee from Ann's office because they were not allowed to go to Ann's office, or go to the kitchen.
 
 
-explanation:
+2.explanation:
 [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from the shop because they had enough money. The agent skipped getting coffee in the kitchen because they were not allowed to go to Ann's office, or go to the kitchen. The agent skipped getting coffee from Ann's office because they were not allowed to go to Ann's office, or go to the kitchen.
 
 
-explanation:
+3.explanation:
 [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from the shop because they had enough money. The agent skipped getting coffee in the kitchen because they were not allowed to go to Ann's office, or go to the kitchen. The agent skipped getting coffee from Ann's office because they were not allowed to go to Ann's office, or go to the kitchen.
 
 
-explanation:
+4.explanation:
 [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['P', 'payShop', ['haveMoney']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from the shop because they had enough money. The agent skipped getting coffee in the kitchen because they were not allowed to go to Ann's office, or go to the kitchen. The agent skipped getting coffee from Ann's office because they were not allowed to go to Ann's office, or go to the kitchen. The agent paid at the shop because they had enough money.
 
 
-explanation:
+5.explanation:
 [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from the shop because they had enough money. The agent skipped getting coffee in the kitchen because they were not allowed to go to Ann's office, or go to the kitchen. The agent skipped getting coffee from Ann's office because they were not allowed to go to Ann's office, or go to the kitchen. The agent paid at the shop because they had enough money. The agent got coffee from the shop.
 
 
-explanation:
+6.explanation:
 [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice, gotoKitchen)'], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from the shop because they had enough money. The agent skipped getting coffee in the kitchen because they were not allowed to go to Ann's office, or go to the kitchen. The agent skipped getting coffee from Ann's office because they were not allowed to go to Ann's office, or go to the kitchen. The agent paid at the shop because they had enough money. The agent got coffee from the shop.
 
 
-explanation:
+7.explanation:
 [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent got coffee from Ann's office because Ann was present in her office. The agent skipped getting coffee in the kitchen because they were not allowed to go to the kitchen. The agent failed to get coffee from the shop because they did not have enough money.
 
 
-explanation:
+8.explanation:
 [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from Ann's office because Ann was present in her office. The agent skipped getting coffee in the kitchen because they were not allowed to go to the kitchen. The agent failed to get coffee from the shop because they did not have enough money.
 
 
-explanation:
+9.explanation:
 [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from Ann's office because Ann was present in her office. The agent skipped getting coffee in the kitchen because they were not allowed to go to the kitchen. The agent failed to get coffee from the shop because they did not have enough money. The agent went to Ann's office because Ann was present in her office.
 
 
-explanation:
+10.explanation:
 [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from Ann's office because Ann was present in her office. The agent skipped getting coffee in the kitchen because they were not allowed to go to the kitchen. The agent failed to get coffee from the shop because they did not have enough money. The agent went to Ann's office because Ann was present in her office.
 
 
-explanation:
+11.explanation:
 [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['P', 'getCoffeeAnnOffice', ['havePod', 'atAnnOffice']], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from Ann's office because Ann was present in her office. The agent skipped getting coffee in the kitchen because they were not allowed to go to the kitchen. The agent failed to get coffee from the shop because they did not have enough money. The agent went to Ann's office because Ann was present in her office. The agent getCoffeeAnnOffice because they had a coffee pod.
 
 
-explanation:
+12.explanation:
 [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getShopCoffee', ['haveMoney']], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['P', 'getCoffeeAnnOffice', ['havePod', 'atAnnOffice']], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from Ann's office because Ann was present in her office. The agent skipped getting coffee in the kitchen because they were not allowed to go to the kitchen. The agent failed to get coffee from the shop because they did not have enough money. The agent went to Ann's office because Ann was present in her office. The agent getCoffeeAnnOffice because they had a coffee pod.
 
 
-explanation:
+13.explanation:
 [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent got coffee from the shop because they had enough money. Given the agent's priorities, they chose to got coffee from the shop over got coffee in the kitchen because it was better in terms of quality. Given the agent's priorities, they chose to got coffee from the shop over got coffee from Ann's office because it was better in terms of quality.
 
 
-explanation:
+*14.explanation:
 [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from the shop because they had enough money. Given the agent's priorities, they chose to got coffee from the shop over got coffee in the kitchen because it was better in terms of quality. Given the agent's priorities, they chose to got coffee from the shop over got coffee from Ann's office because it was better in terms of quality.
 
 
-explanation:
+15.explanation:
 [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from the shop because they had enough money. Given the agent's priorities, they chose to got coffee from the shop over got coffee in the kitchen because it was better in terms of quality. Given the agent's priorities, they chose to got coffee from the shop over got coffee from Ann's office because it was better in terms of quality.
 
 
-explanation:
+16.explanation:
 [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['P', 'payShop', ['haveMoney']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from the shop because they had enough money. Given the agent's priorities, they chose to got coffee from the shop over got coffee in the kitchen because it was better in terms of quality. Given the agent's priorities, they chose to got coffee from the shop over got coffee from Ann's office because it was better in terms of quality. The agent paid at the shop because they had enough money.
 
 
-explanation:
+17.explanation:
 [['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 5.0]], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 story:
 The agent's goal was to get coffee. The agent got coffee from the shop because they had enough money. Given the agent's priorities, they chose to got coffee from the shop over got coffee in the kitchen because it was better in terms of quality. Given the agent's priorities, they chose to got coffee from the shop over got coffee from Ann's office because it was better in terms of quality. The agent paid at the shop because they had enough money. The agent got coffee from the shop.
