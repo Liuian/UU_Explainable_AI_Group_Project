@@ -2,6 +2,15 @@ from anytree.importer import DictImporter
 from anytree import PreOrderIter
 
 # 建立樹狀結構
+import json
+with open("../coffee.json") as f:
+    json_tree = json.load(f)
+norm = {}
+beliefs = ["haveMoney",'staffCardAvailable']
+goal = ["haveCoffee"]
+preferences = [["quality", "price", "time"], [1, 0, 2]]
+action_to_explain = "getCoffee"
+
 importer = DictImporter()
 root = importer.import_(json_tree)
 nodes_dict = {node.name: node for node in PreOrderIter(root)}

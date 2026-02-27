@@ -1,24 +1,30 @@
 1.explanation:
-[['C', 'getKitchenCoffee', ['staffCardAvailable']], ['F', 'getAnnOfficeCoffee', ['AnnInOffice']], ['F', 'getShopCoffee', ['haveMoney']], ['C', 'getOwnCard', ['ownCard']], ['F', 'getOthersCard', ['colleagueAvailable']], ['P', 'getOwnCard', ['ownCard']], ['P', 'getCoffeeKitchen', ['haveCard', 'atKitchen']], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [0, 1, 2]]]]
+[]
 story:
-The agent's goal was to get coffee. The agent got coffee in the kitchen because a staff card was available. The agent obtained your own card because you owned a card. The agent obtained your own card because you owned a card. The agent got coffee in the kitchen because you had a card available. The agent didn't get coffee from Ann's office because Ann was not present in her office. The agent didn't get coffee from the shop because you did not have enough money. The agent didn't obtain someone else's card because the colleague was not available to lend a card.
+The agent's goal was to have coffee. The agent skipped paying at the shop because you were not allowed to pay at the shop.
 
 
 2.explanation:
-[['C', 'getShopCoffee', ['haveMoney']], ['F', 'getKitchenCoffee', ['staffCardAvailable']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [0, 1, 2]]]]
+[['C', 'getKitchenCoffee', ['staffCardAvailable']], ['F', 'getAnnOfficeCoffee', ['AnnInOffice']], ['F', 'getShopCoffee', ['haveMoney']], ['C', 'getOwnCard', ['ownCard']], ['F', 'getOthersCard', ['colleagueAvailable']], ['P', 'getOwnCard', ['ownCard']], ['P', 'getCoffeeKitchen', ['haveCard', 'atKitchen']], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [0, 1, 2]]]]
 story:
-The agent's goal was to get coffee. The agent got coffee from the shop because you had enough money. The agent paid at the shop because you had enough money. The agent got coffee from the shop. The agent didn't get coffee in the kitchen because a staff card was not available.
+The agent's goal was to get coffee. The agent got coffee in the kitchen because a staff card was available. The agent obtained your own card because you owned a card. The agent got coffee in the kitchen because you had a card available. The agent didn't get coffee from Ann's office because Ann was not present in her office. The agent didn't get coffee from the shop because you did not have enough money. The agent didn't obtain someone else's card because the colleague was not available to lend a card.
 
 
 3.explanation:
-[['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 3.0]], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice)'], ['P', 'payShop', ['haveMoney']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [0, 1, 2]]]]
+[['C', 'getShopCoffee', ['haveMoney']], ['F', 'getKitchenCoffee', ['staffCardAvailable']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getAnnOfficeCoffee', [2.0, 0.0, 6.0]], ['P', 'payShop', ['haveMoney']], ['P', 'getCoffeeShop', ['atShop']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [0, 1, 2]]]]
 story:
-The agent's goal was to get coffee. The agent got coffee from the shop because you had enough money. The agent paid at the shop because you had enough money. The agent skipped getting coffee from Ann's office because you were not allowed to go to Ann's office.
+The agent's goal was to get coffee. The agent got coffee from the shop because you had enough money. Given the agent's priorities, the agent chose getting coffee from the shop over getting coffee from Ann's office because it was better in terms of time. The agent paid at the shop because you had enough money. The agent got coffee from the shop. The agent didn't get coffee in the kitchen because a staff card was not available.
 
 
 4.explanation:
+[['C', 'getShopCoffee', ['haveMoney']], ['V', 'getShopCoffee', [0.0, 3.0, 9.0], '>', 'getKitchenCoffee', [5.0, 0.0, 3.0]], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice)'], ['P', 'payShop', ['haveMoney']], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [0, 1, 2]]]]
+story:
+The agent's goal was to get coffee. The agent got coffee from the shop because you had enough money. Given the agent's priorities, the agent chose getting coffee from the shop over getting coffee in the kitchen because it was better in terms of time. The agent paid at the shop because you had enough money. The agent skipped getting coffee from Ann's office because you were not allowed to go to Ann's office.
+
+
+5.explanation:
 [['C', 'getKitchenCoffee', ['staffCardAvailable']], ['F', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getShopCoffee', 'P(payShop)'], ['C', 'getOwnCard', ['ownCard']], ['V', 'getOwnCard', [0.0, 0.0, 0.0], '>', 'getOthersCard', [0.0, 0.0, 2.0]], ['P', 'getOwnCard', ['ownCard']], ['L', 'gotoKitchen', '->', 'getCoffeeKitchen'], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [1, 2, 0]]]]
 story:
-The agent's goal was to get coffee. The agent got coffee in the kitchen because a staff card was available. The agent obtained your own card because you owned a card. The agent obtained your own card because you owned a card. The agent skipped getting coffee from the shop because you were not allowed to pay at the shop. The agent didn't get coffee from Ann's office because Ann was not present in her office.
+The agent's goal was to get coffee. The agent got coffee in the kitchen because a staff card was available. The agent obtained your own card because you owned a card. Given the agent's priorities, the agent chose obtaining your own card over obtaining someone else's card because it was better in terms of time. The agent skipped getting coffee from the shop because you were not allowed to pay at the shop. The agent didn't get coffee from Ann's office because Ann was not present in her office.
 
 
