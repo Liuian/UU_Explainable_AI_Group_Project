@@ -493,7 +493,6 @@ def non_executed_action_explanation(norm, beliefs, goal, preferences, action_to_
         if n_type =="P" and action_to_explain in n_actions:
             n_actions = norm.get("actions")
             norm_code = f"P({', '.join(n_actions)})"
-            print(norm_code)
             alts_gerund = [past_to_gerund(action_names_past.get(action_to_explain, action_to_explain))]
             story.append(f"The agent skipped {alts_gerund[0]} because {norm_to_english(norm_code)}.")
             return " ".join(story)
