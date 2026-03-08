@@ -334,7 +334,7 @@ Function to generate the full natural English story based on the explanation of
 assignment 4. Loops through the explanation to identify items (N, F, D etc.) and
 replace their parts with natural English structures. 
 """
-def generate_nl_explanation(explanation, trace):
+def generate_nl_explanation(explanation):
     story = []
     criteria, priorities = None, None
 
@@ -353,14 +353,6 @@ def generate_nl_explanation(explanation, trace):
     for f in explanation:
         if f[0] == 'U':
             criteria, priorities = f[1][0], f[1][1]
-            # sorted_criteria = [criteria[i] for i in priorities]
-            # first_priority = sorted_criteria[0]
-            # rest_priority = sorted_criteria[1:]
-            # if len(sorted_criteria) == 2:
-            #     story.append(f"The agent valued {first_priority} the most, followed by {rest_priority[0]}")
-            # else:
-            #     story.append(f"The agent valued {first_priority} the most, followed by {', '.join(rest_priority[:-1])} and {rest_priority[-1]}.")
-
 
 
     # Extract N actions to merge all N sentences for explaining
@@ -615,7 +607,7 @@ inputs = [
         "action_to_explain": "gotoKitchen"
     }
 ]
-TREE_FILE_LOCATION = "../coffee.json"
+TREE_FILE_LOCATION = "./coffee.json"
 with open("nl_output_5inputs_v3.txt", "w", encoding="utf-8") as f:
     for idx,params in enumerate(inputs, 1):
         norm = params["norm"]
@@ -631,5 +623,5 @@ with open("nl_output_5inputs_v3.txt", "w", encoding="utf-8") as f:
             nl_explanation = non_executed_action_explanation(norm, beliefs, goal, preferences, action_to_explain, selected_trace)
             f.write(f"{idx}.explanation:\n{formal_explanation}\nstory:\n{nl_explanation}\n\n\n")
         else:
-            nl_explanation = generate_nl_explanation(formal_explanation,selected_trace)
+            nl_explanation = generate_nl_explanation(formal_explanation)
             f.write(f"{idx}.explanation:\n{formal_explanation}\nstory:\n{nl_explanation}\n\n\n")

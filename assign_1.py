@@ -8,6 +8,8 @@ with open("coffee.json") as f:
 with open("coffee_advanced_tree.json") as v:
     json_adv_tree = json.load(v)
 
+with open("coffee_and.json") as v:
+    json_and_tree = json.load(v)
 
 def create_anytree(starting_node, parent=None):
     """
@@ -48,6 +50,11 @@ def find_starting_node(anytree_obj, starting_node_name):
     starting_node_name: string containing name starting node
     anytree_obj: anytree object containing json tree 
     """
+
+    # Return None if empty string
+    if starting_node_name == "":
+        return None
+    
     # Check if starting node is root node
     if anytree_obj.name == starting_node_name:
         return anytree_obj
@@ -69,6 +76,10 @@ def find_traces(node):
     
     Returns a list of traces, each trace is a list of node names. 
     """
+    # If starting node not in tree, return empty list
+    if node is None:
+        return []
+    
     # Returns name of leaf node (ACT type or no children)
     if node.type == "ACT" or len(node.children) == 0:
         return [[node.name]]
@@ -116,7 +127,7 @@ def find_traces(node):
 starting_node_name = "getKitchenCoffee"
 
 # Build json tree into anytree object
-anytree_obj = create_anytree(json_tree)
+anytree_obj = create_anytree(json_and_tree)
 
 # Locate the starting node in the anytree object
 starting_node = find_starting_node(anytree_obj, starting_node_name)
@@ -126,22 +137,3 @@ output = find_traces(starting_node)
 
 # Comment out for Prairielearn!
 print(output)
-
-
-"""
-Testing the advanced tree 
-"""
-# # Define starting node 
-# starting_node_name_adv = "chooseSource"
-
-# # Build json tree into anytree object
-# anytree_obj_adv = create_anytree(json_adv_tree)
-
-# # Locate the starting node in the anytree object
-# starting_node_adv = find_starting_node(anytree_obj_adv, starting_node_name_adv)
-
-# # Collect all the traces starting from starting_node
-# output_adv = find_traces(starting_node_adv)
-
-# # Comment out for Prairielearn!
-# print(output_adv)
