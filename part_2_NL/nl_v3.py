@@ -25,10 +25,6 @@ def annotate(node):
     else:  # SEQ or AND
         node.violation = any(child.violation for child in node.children)
 
-
-
-
-
 # Generate traces
 def generate_traces(node, current_beliefs):
     # Check Preconditions for the internal node itself
@@ -68,12 +64,6 @@ def generate_traces(node, current_beliefs):
         return traces
     return []
 
-
-
-
-
-
-
 ################################################
 # --- PART 2: 生成解釋因子 (符合系統回饋的格式) --- #
 ################################################
@@ -95,7 +85,6 @@ def get_local_cost(node, trace):
                 return get_local_cost(child, trace)
         return get_local_cost(node.children[0], trace) if node.children else [0, 0, 0]
     return total
-
 
 def generate_output(trace, target_name, nodes_dict):
     if not trace or target_name not in trace:
@@ -244,8 +233,6 @@ def generate_output(trace, target_name, nodes_dict):
     res.append(['U', preferences])
     return res
 
-
-
 def generate_formal_explanation(norm, beliefs, goal, preferences, action_to_explain):
     with open(TREE_FILE_LOCATION) as f:
         json_tree = json.load(f)
@@ -282,7 +269,6 @@ def generate_formal_explanation(norm, beliefs, goal, preferences, action_to_expl
 
     return generate_output(selected_trace, action_to_explain,nodes_dict), selected_trace
 
-
 """
 ----------NATURAL LANGUAGE EXPLANATION----------
 """
@@ -318,6 +304,9 @@ def past_to_gerund(past_text):
             return past_text.replace(k, v, 1)
     return past_text + "ing"
 
+"""
+Function to remove the repeated sentences in the final story
+"""
 def remove_duplicate_sentences(story_text):
     sentences = story_text.split(".")
     cleaned = [s.strip() for s in sentences if s.strip()]
@@ -440,44 +429,11 @@ def generate_nl_explanation(explanation):
     nl_explanation = remove_duplicate_sentences(nl_explanation)
     return nl_explanation
 
-def find_all_paths_to_action(root, action_to_explain):
-    paths = []
-    for node in PreOrderIter(root):
-        if node.name == action_to_explain:
-            path_names = [n.name for n in node.path]
-            paths.append(path_names)
-    return paths
-
-def find_last_divergence(prefix_paths, selected_trace):
-    if not prefix_paths or not selected_trace:
-        return None,None,None,None
-
-    best = (0,None,None,None,None)
-    for p in prefix_paths:
-        if not p:
-            continue
-        i = 0
-        max_i = min(len(p), len(selected_trace))
-        while i < max_i and p[i] == selected_trace[i]:
-            i += 1
-
-        if i == 0:
-            continue
-
-        diverge_node = p[i-1]
-        next_prefix = p[i] if i <len(p) else None
-        next_selected = selected_trace[i] if i <len(selected_trace) else None
-
-        if i > best[0]:
-            best = (i, diverge_node, next_prefix, next_selected,p)
-
-        _, _, next_prefix, next_selected, _ = best
-        return next_prefix, next_selected
-
-
-def non_executed_action_explanation(norm, beliefs, goal, preferences, action_to_explain, selected_trace):
+"""
+Function to explain the reason why the chosen action is not executed
+"""
+def non_executed_action_explanation(norm, beliefs, goal, action_to_explain):
     overall_goal = action_names_present.get(goal[0], goal[0])
-    print(overall_goal)
     story = [f"The agent's goal was to {overall_goal}."]
 
     with open(TREE_FILE_LOCATION) as f:
@@ -512,13 +468,10 @@ def non_executed_action_explanation(norm, beliefs, goal, preferences, action_to_
 
         target_action_traces = [t for t, _, _, _ in all_traces if action_to_explain in t]
         if target_action_traces:
-            print("mark 3")
             O_satisfying = any(any(o in t for o in o_actions) for t in target_action_traces)
             if not O_satisfying:
-                print('mark 4')
                 o_actions = norm.get("actions")
                 norm_code = f"O({', '.join(o_actions)})"
-                print(norm_code)
                 alts_gerund = [past_to_gerund(action_names_past.get(action_to_explain, action_to_explain))]
                 story.append(f"The agent skipped {alts_gerund[0]} because {norm_to_english(norm_code)}.")
     return " ".join(story)
@@ -568,7 +521,7 @@ precondition_mapping = {
 negated_precondition_mapping = {k: v.replace("were", "were not").replace("had", "did not have").replace("was", "was not")
                                for k, v in precondition_mapping.items()}
 
-
+# 5 inputs given in peer review
 inputs = [
     {
         "norm": {"type": "P", "actions": ["payShop"]},
@@ -606,7 +559,7 @@ inputs = [
         "action_to_explain": "gotoKitchen"
     }
 ]
-TREE_FILE_LOCATION = "./coffee.json"
+TREE_FILE_LOCATION = "../coffee.json"
 with open("nl_output_5inputs_v3.txt", "w", encoding="utf-8") as f:
     for idx,params in enumerate(inputs, 1):
         norm = params["norm"]
@@ -616,10 +569,8 @@ with open("nl_output_5inputs_v3.txt", "w", encoding="utf-8") as f:
         action_to_explain = params["action_to_explain"]
 
         formal_explanation, selected_trace = generate_formal_explanation(norm, beliefs, goal, preferences, action_to_explain)
-        print(formal_explanation)
-        print(selected_trace)
         if len(formal_explanation) == 0:
-            nl_explanation = non_executed_action_explanation(norm, beliefs, goal, preferences, action_to_explain, selected_trace)
+            nl_explanation = non_executed_action_explanation(norm, beliefs, goal, action_to_explain)
             f.write(f"{idx}.explanation:\n{formal_explanation}\nstory:\n{nl_explanation}\n\n\n")
         else:
             nl_explanation = generate_nl_explanation(formal_explanation)
