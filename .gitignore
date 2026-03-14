@@ -6,3 +6,4 @@ project2/dataset
 .venv/
 __pycache__/
 *.pyc
+
