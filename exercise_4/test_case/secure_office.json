@@ -1,0 +1,90 @@
+{
+  "name": "SecureOffice",
+  "type": "OR",
+  "children": [
+    {
+      "name": "StandardShutdown",
+      "type": "SEQ",
+      "pre": ["Authorized"],
+      "children": [
+        {
+          "name": "SecureAssets",
+          "type": "AND",
+          "sequence": 1,
+          "children": [
+            {
+              "name": "LockFiles",
+              "type": "OR",
+              "children": [
+                {
+                  "name": "DigitalLock",
+                  "type": "ACT",
+                  "pre": ["LaptopOn"],
+                  "post": ["FilesEncrypted"],
+                  "costs": [1.0, 0.0, 1.0]
+                },
+                {
+                  "name": "PhysicalLock",
+                  "type": "ACT",
+                  "pre": ["CabinetKeyAvailable"],
+                  "post": ["FilesEncrypted"],
+                  "costs": [0.0, 0.0, 3.0]
+                }
+              ]
+            },
+            {
+              "name": "StoreLaptop",
+              "type": "SEQ",
+              "children": [
+                {
+                  "name": "PutInSafe",
+                  "type": "ACT",
+                  "sequence": 1,
+                  "post": ["LaptopInSafe"],
+                  "costs": [0.0, 0.0, 2.0]
+                },
+                {
+                  "name": "SetSafeCombo",
+                  "type": "ACT",
+                  "sequence": 2,
+                  "pre": ["LaptopInSafe"],
+                  "post": ["SafeLocked"],
+                  "costs": [0.0, 1.0, 1.0]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "ExitProcedure",
+          "type": "SEQ",
+          "sequence": 2,
+          "children": [
+            {
+              "name": "CheckLights",
+              "type": "ACT",
+              "sequence": 1,
+              "post": ["LightsOff"],
+              "costs": [0.0, 0.0, 1.0]
+            },
+            {
+              "name": "FinalLock",
+              "type": "ACT",
+              "sequence": 2,
+              "pre": ["SafeLocked", "LightsOff", "FilesEncrypted"],
+              "post": ["OfficeSecured"],
+              "costs": [0.0, 0.0, 1.0]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmergencyShutdown",
+      "type": "ACT",
+      "pre": ["EmergencyAlert"],
+      "post": ["OfficeSecured"],
+      "costs": [10.0, 0.0, 1.0]
+    }
+  ]
+}
