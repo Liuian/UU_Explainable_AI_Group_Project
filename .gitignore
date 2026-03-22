@@ -1,9 +1,0 @@
-.DS_Store
-project2/kaggle.json
-project2/chexpert.zip
-project2/CheXpert-v1.0-small
-project2/dataset
-.venv/
-__pycache__/
-*.pyc
-
