@@ -85,3 +85,5 @@ urllib3==2.6.3
 wcwidth==0.6.0
 webencodings==0.5.1
 widgetsnbextension==4.0.15
+seaborn==0.13.2
+grad-cam==1.5.5
