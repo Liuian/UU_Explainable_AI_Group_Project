@@ -6,4 +6,4 @@ project2/dataset
 .venv/
 __pycache__/
 *.pyc
-
+project2/final_notebook.ipynb
